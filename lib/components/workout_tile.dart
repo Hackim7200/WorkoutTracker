@@ -31,19 +31,31 @@ class WorkoutTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(child: Image.asset('assets/images/barbell.png')),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Back Day",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            "Back Day heheh",
+                            style: TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
-                    ),
-                  )
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          shape: CircleBorder(),
+                          padding: EdgeInsets.all(
+                              0), // Minimize padding inside the button
+                          minimumSize: Size(30, 30), // Adjust the button size
+                        ),
+                        child: Icon(Icons.more_vert,
+                            size: 20), // Adjust icon size if necessary
+                      ),
+                    ],
+                  ),
                 ],
               ),
             )),

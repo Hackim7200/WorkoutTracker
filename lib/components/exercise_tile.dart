@@ -14,27 +14,31 @@ class ExerciseTile extends StatelessWidget {
         decoration: BoxDecoration(
             color: Colors.orangeAccent,
             borderRadius: BorderRadius.circular(10)),
+        height: 100,
         child: Row(
           children: [
+            AspectRatio(
+              aspectRatio: 1 / 1,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Image.asset('assets/images/muscle.png'),
+              ),
+            ),
             Expanded(
-              child: Center(
-                child: Text(
-                  "Pull ups",
-                  style: TextStyle(fontSize: 24), // Customize as needed
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("PUSH UPS",
+                      style:
+                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                  Text(
+                    "Chest, Triceps, Core, Glutes",
+                    style:
+                        TextStyle(color: const Color.fromARGB(255, 77, 77, 77)),
+                  )
+                ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 20, top: 20, bottom: 20),
-              child: Container(
-                width: 50,
-                height: 50,
-                color: Colors.amber,
-                child: ischecked
-                    ? Icon(Icons.check)
-                    : Icon(Icons.check_box_outline_blank_rounded),
-              ),
-            ),
+            )
           ],
         ),
       ),
