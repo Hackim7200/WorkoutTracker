@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/components/MyData.dart';
+import 'package:workout_tracker/components/my_data.dart';
 
 class ProrgessTable extends StatelessWidget {
-  final Mydata mydata = Mydata();
+  final MyData mydata = MyData();
 
   // final numberOfRows = Mydata().numberOfRows;
 

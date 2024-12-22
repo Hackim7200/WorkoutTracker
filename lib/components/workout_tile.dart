@@ -4,15 +4,18 @@ class WorkoutTile extends StatelessWidget {
   // global variables
   final String title;
   final VoidCallback
-      onTapCustom; // void callback is a function without return type
+      onTapCard; // void callback is a function without return type
   // can be given a function e.g onclick = (){}
+  // this allows us to call the button from outside using the params
+  final VoidCallback onTapOption;
 
   const WorkoutTile(
       { // this is the contructor
       // all the parameter in function
       super.key,
       required this.title,
-      required this.onTapCustom // since its void it needs to get its information form outside
+      required this.onTapCard,
+      required this.onTapOption // since its void it needs to get its information form outside
       });
 
   @override
@@ -20,6 +23,7 @@ class WorkoutTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
+        onTap: onTapCard,
         child: Container(
             decoration: BoxDecoration(
               color: Colors.deepOrangeAccent,
@@ -37,20 +41,20 @@ class WorkoutTile extends StatelessWidget {
                       Expanded(
                         child: Center(
                           child: Text(
-                            "Back Day heheh",
+                            title,
                             style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.bold),
+                                fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           shape: CircleBorder(),
                           padding: EdgeInsets.all(
                               0), // Minimize padding inside the button
                           minimumSize: Size(30, 30), // Adjust the button size
                         ),
+                        onPressed: onTapOption,
                         child: Icon(Icons.more_vert,
                             size: 20), // Adjust icon size if necessary
                       ),

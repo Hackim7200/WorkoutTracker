@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/exercise_tile.dart';
 
-class RoutineExercise extends StatelessWidget {
-  const RoutineExercise({super.key});
+class RoutineExercises extends StatelessWidget {
+  final String workoutName;
+  const RoutineExercises({super.key, required this.workoutName});
 
   @override
   Widget build(BuildContext context) {
+    final List<String> exercises = [
+      "Pull-Ups",
+      "Deadlifts",
+      "Barbell Rows",
+      "Dumbbell Rows",
+      "Lat Pulldowns",
+      "Seated Cable Rows",
+      "T-Bar Rows",
+      "Face Pulls",
+      "Hyperextensions",
+      "Inverted Rows",
+    ];
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "E X E R C I S E S",
+          workoutName,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.teal,
@@ -22,8 +36,12 @@ class RoutineExercise extends StatelessWidget {
       ),
       body: Column(
         children: [
-          ExerciseTile(),
-          ExerciseTile(),
+          ExerciseTile(
+              title: exercises[0], info: "Chest, Triceps, Core, Glutes"),
+          ExerciseTile(
+              title: exercises[1], info: "Chest, Triceps, Core, Glutes"),
+          ExerciseTile(
+              title: exercises[2], info: "Chest, Triceps, Core, Glutes"),
         ],
       ),
     );

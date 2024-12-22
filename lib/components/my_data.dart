@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Mydata extends DataTableSource {
+class MyData extends DataTableSource {
   // final List<String> fruits = ["Apple", "Banana"]; single item is like this
 
   final List<List<dynamic>> fruits = [

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ExerciseTile extends StatelessWidget {
-  final title = "";
-  final ischecked = false;
+  final String title;
+  final String info;
 
-  const ExerciseTile({super.key});
+  const ExerciseTile({super.key, required this.title, required this.info});
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +28,11 @@ class ExerciseTile extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("PUSH UPS",
+                  Text(title,
                       style:
                           TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   Text(
-                    "Chest, Triceps, Core, Glutes",
+                    info,
                     style:
                         TextStyle(color: const Color.fromARGB(255, 77, 77, 77)),
                   )

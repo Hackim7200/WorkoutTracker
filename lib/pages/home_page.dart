@@ -1,11 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/components/my_dialog.dart';
 import 'package:workout_tracker/components/workout_tile.dart';
+import 'package:workout_tracker/pages/routine_exercises.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    void _showDialog() {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: Colors.amberAccent,
+              title: Text("Add a new workout"),
+              content: Column(mainAxisSize: MainAxisSize.min, children: [
+                TextField(
+                  decoration: InputDecoration(labelText: 'Routine name'),
+                ),
+                DropdownButton<String>(
+                  // value: dropdownValue,/
+                  onChanged: (String? newValue) {
+                    // dropdownValue = newValue!;
+                  },
+                  items: <String>['Cardio', 'Weight lifting', 'Stretching']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ]),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Cancel")),
+                ElevatedButton(onPressed: () {}, child: Text("Create"))
+              ],
+            );
+          });
+    }
+
     final List workoutList = [
       "Back",
       "Chest",
@@ -24,7 +61,7 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.teal,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, "/routine"),
+        onPressed: () => _showDialog(),
         backgroundColor: Colors.orangeAccent,
         child: Icon(Icons.add),
       ),
@@ -41,8 +78,18 @@ class HomePage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return WorkoutTile(
                   title: workoutList[index].toString(),
-                  onTapCustom: () {
-                    debugPrint("the function is working!!");
+                  onTapCard: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RoutineExercises(
+                          workoutName: workoutList[index],
+                        ),
+                      ),
+                    );
+                  },
+                  onTapOption: () {
+                    debugPrint("the option was clicked");
                   },
                 );
               },
@@ -52,6 +99,4 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
-  void onPressed() {}
 }
