@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class WorkoutTile extends StatelessWidget {
   // global variables
   final String title;
+  final String type;
+
+  //  callback function
   final VoidCallback
       onTapCard; // void callback is a function without return type
   // can be given a function e.g onclick = (){}
@@ -15,7 +18,8 @@ class WorkoutTile extends StatelessWidget {
       super.key,
       required this.title,
       required this.onTapCard,
-      required this.onTapOption // since its void it needs to get its information form outside
+      required this.onTapOption,
+      required this.type // since its void it needs to get its information form outside
       });
 
   @override
@@ -24,17 +28,14 @@ class WorkoutTile extends StatelessWidget {
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         onTap: onTapCard,
-        child: Container(
-            decoration: BoxDecoration(
-              color: Colors.deepOrangeAccent,
-              borderRadius: BorderRadius.circular(10),
-            ),
+        child: Card(
+            color: Colors.deepOrangeAccent,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Image.asset('assets/images/barbell.png')),
+                  Expanded(child: routineType(type)),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -65,5 +66,17 @@ class WorkoutTile extends StatelessWidget {
             )),
       ),
     );
+  }
+
+  Widget routineType(String type) {
+    if (type == 'weights') {
+      return Image.asset("assets/images/bodySections/6583949.png");
+    } else if (type == 'cardio') {
+      return Image.asset("assets/images/bodySections/6583949.png");
+    } else if (type == 'stretching') {
+      return Image.asset("assets/images/bodySections/6583949.png");
+    } else {
+      return SizedBox.shrink(); // Return an empty widget if no match is found
+    }
   }
 }

@@ -10,14 +10,13 @@ class ProrgessTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final numberOfRows = mydata.numberOfRows;
+    final numberOfRows = mydata.rowCount;
     final numberOfRowsPerPage = 12;
 
     return PaginatedDataTable(
-      // headingRowHeight: 20,
       rowsPerPage: numberOfRowsPerPage,
       source: mydata,
-      columnSpacing: 5,
+      columnSpacing: 10,
 
       // both needs to be set or it wont work
       dataRowMaxHeight: 30,
@@ -29,10 +28,24 @@ class ProrgessTable extends StatelessWidget {
       initialFirstRowIndex: numberOfRows - numberOfRowsPerPage,
 
       columns: [
-        DataColumn(label: Text("Item")),
-        DataColumn(label: Text("Fruits")),
-        DataColumn(label: Text("Price (£)")),
-        DataColumn(label: Text("Callories"))
+        DataColumn(
+            label: Text("Date"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("KG"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("Rep"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("KG"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("Rep"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("KG"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("Rep"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("KG"), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(
+            label: Text("Rep"), headingRowAlignment: MainAxisAlignment.center),
       ],
     );
   }

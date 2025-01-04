@@ -3,55 +3,212 @@ import 'package:flutter/material.dart';
 class MyData extends DataTableSource {
   // final List<String> fruits = ["Apple", "Banana"]; single item is like this
 
-  final List<List<dynamic>> fruits = [
-    // to create a neasted list you use this
-
-    [1, 'Apple', 1.2, 52],
-    [2, 'Banana', 0.5, 89],
-    [3, 'Carrot', 0.3, 41],
-    [4, 'Kiwi', 1.5, 61],
-    [5, 'Apricot', 1.0, 48],
-    [6, 'Pineapple', 2.5, 50],
-    [7, 'Mango', 1.8, 60],
-    [8, 'Orange', 0.8, 47],
-    [9, 'Peach', 1.0, 39],
-    [10, 'Strawberry', 2.0, 32],
-    [11, 'Grape', 1.5, 69],
-    [12, 'Watermelon', 3.0, 30],
-    [13, 'Papaya', 2.0, 43],
-    [14, 'Blueberry', 2.5, 57],
-    [15, 'Raspberry', 2.2, 52],
-    [16, 'Blackberry', 2.3, 43],
-    [17, 'Plum', 1.2, 46],
-    [18, 'Cherry', 2.0, 50],
-    [19, 'Melon', 2.8, 50],
-    [20, 'Lemon', 0.6, 29],
-    [21, 'Lime', 0.5, 30],
-    [22, 'Pear', 1.0, 57],
-    [23, 'Cantaloupe', 2.0, 34],
-    [24, 'Tangerine', 1.2, 53],
-    [25, 'Grapefruit', 1.5, 42],
-    [26, 'Dragonfruit', 3.0, 50],
-    [27, 'Lychee', 2.8, 66],
-    [28, 'Pomegranate', 3.5, 83],
-    [29, 'Jackfruit', 2.5, 95],
-    [30, 'Coconut', 3.0, 354],
-    [31, 'Fig', 2.0, 74],
-    [32, 'Date', 1.8, 277],
-    [33, 'Guava', 1.5, 68],
-    [34, 'Passion Fruit', 2.5, 97],
-    [35, 'Starfruit', 2.3, 31]
+  final List<List<dynamic>> workouts = [
+    [
+      1,
+      '01 Jan 24',
+      [12.3, 11]
+    ],
+    [
+      2,
+      '02 Jan 24',
+      [15.4, 12]
+    ],
+    [
+      3,
+      '03 Jan 24',
+      [18.6, 10]
+    ],
+    [
+      4,
+      '04 Jan 24',
+      [14.2, 11]
+    ],
+    [
+      5,
+      '05 Jan 24',
+      [16.7, 12]
+    ],
+    [
+      6,
+      '06 Jan 24',
+      [19.0, 10]
+    ],
+    [
+      7,
+      '07 Jan 24',
+      [13.5, 11]
+    ],
+    [
+      8,
+      '08 Jan 24',
+      [11.9, 12]
+    ],
+    [
+      9,
+      '09 Jan 24',
+      [17.1, 10]
+    ],
+    [
+      10,
+      '10 Jan 24',
+      [15.3, 12]
+    ],
+    [
+      11,
+      '11 Jan 24',
+      [14.8, 11]
+    ],
+    [
+      12,
+      '12 Jan 24',
+      [18.2, 10]
+    ],
+    [
+      13,
+      '13 Jan 24',
+      [13.3, 12]
+    ],
+    [
+      14,
+      '14 Jan 24',
+      [11.6, 11]
+    ],
+    [
+      15,
+      '15 Jan 24',
+      [19.5, 10]
+    ],
+    [
+      16,
+      '16 Jan 24',
+      [16.0, 12]
+    ],
+    [
+      17,
+      '17 Jan 24',
+      [14.9, 11]
+    ],
+    [
+      18,
+      '18 Jan 24',
+      [17.8, 10]
+    ],
+    [
+      19,
+      '19 Jan 24',
+      [12.2, 12]
+    ],
+    [
+      20,
+      '20 Jan 24',
+      [16.4, 11]
+    ],
+    [
+      21,
+      '21 Jan 24',
+      [11.7, 12]
+    ],
+    [
+      22,
+      '22 Jan 24',
+      [13.8, 10]
+    ],
+    [
+      23,
+      '23 Jan 24',
+      [19.1, 11]
+    ],
+    [
+      24,
+      '24 Jan 24',
+      [17.6, 12]
+    ],
+    [
+      25,
+      '25 Jan 24',
+      [14.4, 10]
+    ],
+    [
+      26,
+      '26 Jan 24',
+      [18.3, 11]
+    ],
+    [
+      27,
+      '27 Jan 24',
+      [15.6, 12]
+    ],
+    [
+      28,
+      '28 Jan 24',
+      [11.5, 10]
+    ],
+    [
+      29,
+      '29 Jan 24',
+      [17.2, 12]
+    ],
+    [
+      30,
+      '30 Jan 24',
+      [16.1, 11]
+    ],
+    [
+      31,
+      '31 Jan 24',
+      [12.9, 10]
+    ],
+    [
+      32,
+      '01 Feb 24',
+      [14.5, 12]
+    ],
+    [
+      33,
+      '02 Feb 24',
+      [13.1, 11]
+    ],
+    [
+      34,
+      '03 Feb 24',
+      [19.2, 10]
+    ],
+    [
+      35,
+      '04 Feb 24',
+      [15.0, 30]
+    ],
   ];
-
-  int get numberOfRows => fruits.length;
 
   @override
   DataRow? getRow(int index) {
     return DataRow(cells: [
-      DataCell(Text(fruits[index][0].toString())),
-      DataCell(Text(fruits[index][1])),
-      DataCell(Text(fruits[index][2].toString())),
-      DataCell(Text(fruits[index][3].toString()))
+      DataCell(Text(workouts[index][1].toString())),
+      DataCell(Text(
+        workouts[index][2][0].toString(),
+        style: TextStyle(color: Colors.lightBlueAccent),
+      )),
+      DataCell(Text(workouts[index][2][1].toString(),
+          style: TextStyle(color: Colors.lightBlueAccent))),
+      DataCell(Text(
+        workouts[index][2][0].toString(),
+        style: TextStyle(color: Colors.orangeAccent),
+      )),
+      DataCell(Text(workouts[index][2][1].toString(),
+          style: TextStyle(color: Colors.orangeAccent))),
+      DataCell(Text(
+        workouts[index][2][0].toString(),
+        style: TextStyle(color: Colors.deepOrangeAccent),
+      )),
+      DataCell(Text(workouts[index][2][1].toString(),
+          style: TextStyle(color: Colors.deepOrangeAccent))),
+      DataCell(Text(
+        workouts[index][2][0].toString(),
+        style: TextStyle(color: const Color.fromARGB(255, 188, 13, 0)),
+      )),
+      DataCell(Text(workouts[index][2][1].toString(),
+          style: TextStyle(color: const Color.fromARGB(255, 188, 13, 0)))),
     ]);
   }
 
@@ -61,9 +218,14 @@ class MyData extends DataTableSource {
 
   @override
   // TODO: implement rowCount
-  int get rowCount => fruits.length;
+  int get rowCount => workouts.length;
 
   @override
   // TODO: implement selectedRowCount
   int get selectedRowCount => 0;
+  // Method to add a new row
+  void addRow(List<dynamic> newRow) {
+    workouts.add(newRow);
+    notifyListeners(); // Notify listeners to update the table
+  }
 }

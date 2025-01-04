@@ -1,102 +1,114 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/components/my_dialog.dart';
 import 'package:workout_tracker/components/workout_tile.dart';
 import 'package:workout_tracker/pages/routine_exercises.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    void _showDialog() {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              backgroundColor: Colors.amberAccent,
-              title: Text("Add a new workout"),
-              content: Column(mainAxisSize: MainAxisSize.min, children: [
-                TextField(
-                  decoration: InputDecoration(labelText: 'Routine name'),
-                ),
-                DropdownButton<String>(
-                  // value: dropdownValue,/
-                  onChanged: (String? newValue) {
-                    // dropdownValue = newValue!;
-                  },
-                  items: <String>['Cardio', 'Weight lifting', 'Stretching']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ]),
-              actions: [
-                ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text("Cancel")),
-                ElevatedButton(onPressed: () {}, child: Text("Create"))
-              ],
-            );
-          });
-    }
+  State<HomePage> createState() => _HomePageState();
+}
 
-    final List workoutList = [
-      "Back",
-      "Chest",
-      "Arms",
-      "Shoulders",
-      "Legs",
-      "forearms",
-    ];
+class _HomePageState extends State<HomePage> {
+  List<Map<String, dynamic>> workoutList = [
+    {"id": 1, "routine": "Back", 'type': 'weights'},
+    {"id": 2, "routine": "Chest", 'type': 'cardio'},
+    {"id": 3, "routine": "Arms", 'type': 'stretching'},
+    {"id": 4, "routine": "Shoulders", 'type': 'weights'},
+    {"id": 5, "routine": "Legs", 'type': 'cardio'},
+    {"id": 6, "routine": "Forearms", 'type': 'weights'}
+  ];
+
+  final List<DropdownMenuItem<String>> dropdownItems = [
+    DropdownMenuItem(value: 'cardio', child: Text('Cardio')),
+    DropdownMenuItem(value: 'stretching', child: Text('Stretching')),
+    DropdownMenuItem(value: 'weights', child: Text('Weightlifting')),
+  ];
+
+  TextEditingController controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          "W O R K O U T S",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.teal,
+      body: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10),
+        itemCount: workoutList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return WorkoutTile(
+            title: workoutList[index]['routine'],
+            type: workoutList[index]['type'],
+            onTapCard: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RoutineExercises(
+                            workoutName: workoutList[index]['routine'],
+                          )));
+            },
+            onTapOption: () {},
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showDialog(),
-        backgroundColor: Colors.orangeAccent,
-        child: Icon(Icons.add),
-      ),
-      body: SafeArea(
-        // Safe area is the section outside the abstruction of camera lens and edge
-        child: Column(
-          children: [
-            Expanded(
-                child: GridView.builder(
-              itemCount: workoutList.length, // the number of item is grid
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2), // number of columns per row
-              // this is like list.map((index)=>{}) in js
-              itemBuilder: (context, index) {
-                return WorkoutTile(
-                  title: workoutList[index].toString(),
-                  onTapCard: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RoutineExercises(
-                          workoutName: workoutList[index],
-                        ),
-                      ),
-                    );
-                  },
-                  onTapOption: () {
-                    debugPrint("the option was clicked");
-                  },
-                );
-              },
-            ))
-          ],
-        ),
-      ),
+          onPressed: showRoutineDialog, child: Icon(Icons.add)),
     );
+  }
+
+  void showRoutineDialog() {
+    String dropdownValue =
+        'cardio'; // Set initial value inside the dialog scope
+    controller.clear(); // Clear the text field
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              // Use StatefulBuilder for the dialog's state
+              return AlertDialog(
+                title: Text("Add a new workout"),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                          labelText: 'Routine name',
+                          border: OutlineInputBorder()),
+                    ),
+                    SizedBox(height: 10),
+                    DropdownButton<String>(
+                      items: dropdownItems,
+                      value: dropdownValue,
+                      onChanged: (String? selectedValue) {
+                        setDialogState(() {
+                          dropdownValue = selectedValue!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("Cancel")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          workoutList.add({
+                            "id": workoutList.length + 1,
+                            "routine": controller.text,
+                            "type": dropdownValue
+                          });
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Text("Create"))
+                ],
+              );
+            },
+          );
+        });
   }
 }
