@@ -98,7 +98,7 @@ class _HomePage1State extends State<HomePage1> {
                   borderRadius: BorderRadius.circular(8),
                   child: Image.asset(
                     // routines[index][2],
-                    "assets/images/14228733.png",
+                    "assets/images/bodySections/6583949.png",
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,

@@ -8,164 +8,98 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: WorkoutScreen(),
-    );
-  }
-}
-
-class WorkoutScreen extends StatelessWidget {
-  void _showSetInputDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return SetInputDialog();
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Workout Log')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => _showSetInputDialog(context),
-          child: Text('Log Workout'),
-        ),
+      home: Scaffold(
+        appBar: AppBar(title: Text("Card Layout with Inputs")),
+        body: Center(child: ScrollableCardList()),
       ),
     );
   }
 }
 
-class SetInputDialog extends StatefulWidget {
+class ScrollableCardList extends StatelessWidget {
   @override
-  _SetInputDialogState createState() => _SetInputDialogState();
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(4, (index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: CardWidget(setNumber: index + 1, totalSets: 4),
+          );
+        }),
+      ),
+    );
+  }
 }
 
-class _SetInputDialogState extends State<SetInputDialog> {
-  final List<Map<String, String>> _sets = [
-    {'reps': '', 'weight': ''},
-    {'reps': '', 'weight': ''},
-    {'reps': '', 'weight': ''},
-    {'reps': '', 'weight': ''},
-  ];
+class CardWidget extends StatelessWidget {
+  final int setNumber;
+  final int totalSets;
 
-  void _addSet() {
-    setState(() {
-      _sets.add({'reps': '', 'weight': ''});
-    });
-  }
-
-  void _removeSet() {
-    if (_sets.length > 1) {
-      setState(() {
-        _sets.removeLast();
-      });
-    }
-  }
+  CardWidget({required this.setNumber, required this.totalSets});
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Enter Reps & Weight',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Container(
+      width: 200, // Width of the card
+      height: 200, // Height of the card (to make it square)
+      decoration: BoxDecoration(
+        color: Colors.blueAccent,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            offset: Offset(0, 4),
+            blurRadius: 6,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Title (Set number and total sets)
+          Text(
+            '$setNumber/$totalSets sets',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            SizedBox(height: 20),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _sets.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 5),
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Set ${index + 1}'),
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text('Reps: '),
-                                SizedBox(width: 8),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextField(
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (value) {
-                                      _sets[index]['reps'] = value;
-                                    },
-                                    decoration: InputDecoration(
-                                      hintText: 'Reps',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text('Weight: '),
-                                SizedBox(width: 8),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextField(
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (value) {
-                                      _sets[index]['weight'] = value;
-                                    },
-                                    decoration: InputDecoration(
-                                      hintText: 'Weight',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.remove, color: Colors.red),
-                  onPressed: _removeSet,
+          ),
+          SizedBox(height: 16),
+          // Weight input field
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: 'Weight',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-                IconButton(
-                  icon: Icon(Icons.add, color: Colors.green),
-                  onPressed: _addSet,
+              ),
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(height: 10),
+          // Reps input field
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: 'Reps',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-              ],
+              ),
+              style: TextStyle(color: Colors.white),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Here you can handle saving the data, for now, let's just close the dialog
-                Navigator.pop(context);
-              },
-              child: Text('Save Workout'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

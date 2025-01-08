@@ -13,33 +13,22 @@ class Note extends StatelessWidget {
 
     if (type == "caution") {
       noteText = Colors.black; // Dark text for caution to stand out more
-      noteBackground =
-          Color(0xFFFFC107); // Amber background for caution (vibrant yellow)
+      noteBackground = Color.fromRGBO(
+          231, 111, 81, 1); // Amber background for caution (vibrant yellow)
       noteIcon =
           Icon(Icons.warning, color: Colors.black); // Warning icon for caution
-    } else if (type == "info") {
-      noteText = Colors.white; // White text for info
-      noteBackground = Color(
-          0xFF2196F3); // Blue background for info (calm and trust-inducing)
-      noteIcon =
-          Icon(Icons.info_outline, color: Colors.white); // Info icon for info
     } else if (type == "tips") {
       noteText = Colors.white; // White text for tips
-      noteBackground = Color(
-          0xFF4CAF50); // Teal background for tips (refreshing and easy-going)
+      noteBackground = Color.fromRGBO(54, 186, 152,
+          1); // Teal background for tips (refreshing and easy-going)
       noteIcon = Icon(Icons.lightbulb_outline,
           color: Colors.white); // Lightbulb icon for tips
-    } else if (type == "success") {
-      noteText = Colors.white; // White text for success
-      noteBackground =
-          Color(0xFF4CAF50); // Green background for success (positive)
-      noteIcon = Icon(Icons.check_circle_outline,
-          color: Colors.white); // Check icon for success
     } else {
-      noteText = Colors.black; // Dark text for general notes
-      noteBackground = Color(
-          0xFFFFEB3B); // Yellow-orange background for general/fallback (soft and visible)
-      noteIcon = Icon(Icons.notes, color: Colors.black); // General notes icon
+      noteText = Colors.white; // White text for info
+      noteBackground = Color.fromRGBO(233, 195, 106,
+          1); // Blue background for info (calm and trust-inducing)
+      noteIcon =
+          Icon(Icons.info_outline, color: Colors.white); // Info icon for info
     }
 
     return // Caution Note Card
@@ -51,37 +40,17 @@ class Note extends StatelessWidget {
       elevation: 4,
       color: noteBackground,
       child: Padding(
-        padding: const EdgeInsets.all(9.0),
+        padding: const EdgeInsets.all(7.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
                   noteIcon.icon,
                   color: noteText,
-                  size: 24,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  type.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: noteText,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "\u2022",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: noteText,
-                  ),
+                  size: 30,
                 ),
                 SizedBox(width: 5),
                 Expanded(

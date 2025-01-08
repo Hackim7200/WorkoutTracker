@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/workout_tile.dart';
-import 'package:workout_tracker/pages/routine_exercises.dart';
+import 'package:workout_tracker/pages/exercise/exercises.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -42,8 +42,8 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RoutineExercises(
-                            workoutName: workoutList[index]['routine'],
+                      builder: (context) => Exercises(
+                          // workoutName: workoutList[index]['routine'],
                           )));
             },
             onTapOption: () {},
