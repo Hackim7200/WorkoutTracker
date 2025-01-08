@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class Note extends StatelessWidget {
   final String type;
-  final List<String> messages;
-  const Note({super.key, required this.type, required this.messages});
+  final String message;
+  const Note({super.key, required this.type, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class Note extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   noteIcon.icon,
@@ -55,7 +55,7 @@ class Note extends StatelessWidget {
                 SizedBox(width: 5),
                 Expanded(
                   child: Text(
-                    " lorem ipsum dolor sit amet, consectetur adipiscing ",
+                    message,
                     style: TextStyle(
                       fontSize: 16,
                       color: noteText,

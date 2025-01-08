@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/routine_tile.dart';
+import 'package:workout_tracker/pages/routine/add_routine.dart';
 import 'package:workout_tracker/pages/routine/routine_options.dart';
 import 'package:workout_tracker/pages/exercise/exercises.dart';
 
@@ -86,9 +87,9 @@ class Routine extends StatelessWidget {
           IconButton(
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomePageOption()));
+                    MaterialPageRoute(builder: (context) => AddRoutine()));
               },
-              icon: Icon(Icons.more_vert))
+              icon: Icon(Icons.add_box))
         ],
       ),
       body: Padding(

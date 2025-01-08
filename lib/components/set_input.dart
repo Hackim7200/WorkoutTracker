@@ -25,7 +25,7 @@ class SetInput extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(height: 10),
-                        Text("Set 1",
+                        Text("Set ${index + 1}",
                             style: TextStyle(
                                 color: Color.fromRGBO(250, 250, 236, 1),
                                 fontWeight: FontWeight.bold,

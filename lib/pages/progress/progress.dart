@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/my_data.dart';
-import 'package:workout_tracker/components/note.dart';
 import 'package:workout_tracker/components/prorgess_table.dart';
 import 'package:workout_tracker/components/set_input.dart';
+import 'package:workout_tracker/pages/Notes/notes.dart';
 
 class Progress extends StatefulWidget {
   Progress({super.key});
@@ -21,6 +21,32 @@ class _ProgressState extends State<Progress> {
 
   @override
   Widget build(BuildContext context) {
+    void showBottomSheet(context) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            color: scaffoldColor, // Background color of bottom sheet
+            child: Center(
+                child: Column(
+              children: [
+                SizedBox(height: 10),
+                Text(
+                  "Record your sets",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  child: Divider(),
+                ),
+                SetInput(),
+              ],
+            )),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: scaffoldColor,
       appBar: AppBar(
@@ -32,17 +58,29 @@ class _ProgressState extends State<Progress> {
         backgroundColor: appBarColor,
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Note(type: "caution", messages: ["Please fill in all fields."]),
-            Note(type: "tips", messages: ["This is a note card."]),
-            ProrgessTable(),
-            Note(type: "info", messages: ["This is a note card."]),
-            SetInput(),
-            SizedBox(height: 100),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: floatingIconColor,
+        foregroundColor: textColor,
+        child: Icon(Icons.receipt_long_rounded),
+        onPressed: () {
+          showBottomSheet(context);
+        },
+      ),
+      body: Column(
+        children: [
+          ProrgessTable(),
+          SizedBox(height: 10),
+          Text(
+            "N O T E S",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: Divider(),
+          ),
+          Notes(),
+          // SizedBox(height: 100),
+        ],
       ),
     );
   }

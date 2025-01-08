@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/exercise_tile.dart';
+import 'package:workout_tracker/pages/exercise/add_exercise.dart';
 import 'package:workout_tracker/pages/exercise/exercises_option.dart';
 import 'package:workout_tracker/pages/progress/progress.dart';
 
@@ -49,12 +50,11 @@ class _ExercisesState extends State<Exercises> {
           backgroundColor: appBarColor,
           actions: [
             IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ExercisesOption()));
-              },
-            )
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddExercise()));
+                },
+                icon: Icon(Icons.add_box))
           ],
         ),
         body: ListView.builder(
