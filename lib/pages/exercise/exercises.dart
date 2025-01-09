@@ -52,7 +52,7 @@ class _ExercisesState extends State<Exercises> {
             IconButton(
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddExercise()));
+                      MaterialPageRoute(builder: (context) => AddExercise(selectedImage: '',)));
                 },
                 icon: Icon(Icons.add_box))
           ],

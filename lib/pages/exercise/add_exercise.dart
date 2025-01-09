@@ -1,17 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/components/image_selection.dart';
 
 class AddExercise extends StatefulWidget {
-  const AddExercise({super.key});
+  final String? selectedImage;
+  const AddExercise({super.key, required this.selectedImage});
 
   @override
   State<AddExercise> createState() => _AddExerciseState();
 }
 
 class _AddExerciseState extends State<AddExercise> {
+  final List<String> muscles = [
+    '14228733.png',
+    '142287352.png',
+    '14228738.png',
+    '142287402.png',
+    '14228743.png',
+    '142287452.png',
+    '14228748.png',
+    '142287522.png',
+    '14228758.png',
+    '142287612.png',
+    '142287332.png',
+    '14228736.png',
+    '142287382.png',
+    '14228741.png',
+    '142287432.png',
+    '14228746.png',
+    '142287482.png',
+    '14228754.png',
+    '142287582.png',
+    '14228764.png',
+    '14228734.png',
+    '142287362.png',
+    '14228739.png',
+    '142287412.png',
+    '14228744.png',
+    '142287462.png',
+    '14228749.png',
+    '142287542.png',
+    '14228760.png',
+    '142287642.png',
+    '142287342.png',
+    '14228737.png',
+    '142287392.png',
+    '14228742.png',
+    '142287442.png',
+    '14228747.png',
+    '142287492.png',
+    '14228756.png',
+    '142287602.png',
+    '14228735.png',
+    '142287372.png',
+    '14228740.png',
+    '142287422.png',
+    '14228745.png',
+    '142287472.png',
+    '14228752.png',
+    '142287562.png',
+    '14228761.png'
+  ];
+
   final TextEditingController titleController = TextEditingController();
-  // final TextEditingController descriptionController = TextEditingController();
   final TextEditingController _controller = TextEditingController();
   final List<String> _keywords = [];
+  String? _selectedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedImage = widget.selectedImage;
+  }
 
   void _addKeyword() {
     if (_controller.text.isNotEmpty) {
@@ -20,6 +79,12 @@ class _AddExerciseState extends State<AddExercise> {
         _controller.clear(); // Clear the text field after adding
       });
     }
+  }
+
+  void _selectImage(String imagePath) {
+    setState(() {
+      _selectedImage = imagePath;
+    });
   }
 
   @override
@@ -49,21 +114,51 @@ class _AddExerciseState extends State<AddExercise> {
           children: [
             // Image Section
             Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(), // Makes the button circular
-                    padding:
-                        EdgeInsets.all(20), // Adjust the size of the circle
-                    backgroundColor: Colors.amber),
-                onPressed: () {
-                  print('Button pressed');
-                },
-                child: Icon(
-                  Icons.image,
-                  color: textColor, // Icon color
-                  size: 100, // Icon size
-                ),
-              ),
+              child: _selectedImage == ""
+                  ? ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: CircleBorder(), // Makes the button circular
+                          padding: EdgeInsets.all(
+                              20), // Adjust the size of the circle
+                          backgroundColor: Colors.amber),
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ImageSelection(
+                            folderPath: "assets/images/muscles/",
+                            imageList: muscles,
+                            onImageSelected: _selectImage,
+                          );
+                        }));
+                      },
+                      child: Icon(
+                        Icons.image,
+                        color: textColor, // Icon color
+                        size: 100, // Icon size
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Image.asset(
+                          "assets/images/muscles/$_selectedImage",
+                          height: 150,
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return ImageSelection(
+                                folderPath: "assets/images/muscles/",
+                                imageList: muscles,
+                                onImageSelected: _selectImage,
+                              );
+                            }));
+                          },
+                          child: Text("Change Image"),
+                        ),
+                      ],
+                    ),
             ),
             const SizedBox(height: 16),
 
@@ -89,7 +184,7 @@ class _AddExerciseState extends State<AddExercise> {
             ),
             const SizedBox(height: 16),
 
-            // Description TextField
+            // Keywords TextField
             Card(
               color: cardColor,
               shape: RoundedRectangleBorder(
@@ -111,10 +206,8 @@ class _AddExerciseState extends State<AddExercise> {
                     ),
                   ),
                   IconButton(
-                      onPressed: () {
-                        _addKeyword();
-                      },
-                      icon: Icon(Icons.add))
+                      onPressed: _addKeyword,
+                      icon: Icon(Icons.add, color: textColor))
                 ]),
               ),
             ),
@@ -140,7 +233,7 @@ class _AddExerciseState extends State<AddExercise> {
                 ),
               ),
               child: Text(
-                "Add Routine",
+                "Add Exercise",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: scaffoldColor,

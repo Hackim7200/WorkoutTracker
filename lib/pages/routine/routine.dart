@@ -87,7 +87,7 @@ class Routine extends StatelessWidget {
           IconButton(
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddRoutine()));
+                    MaterialPageRoute(builder: (context) => AddRoutine(selectedImage: '',)));
               },
               icon: Icon(Icons.add_box))
         ],
