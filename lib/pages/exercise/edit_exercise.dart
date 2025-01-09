@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/image_selection.dart';
 
-class AddExercise extends StatefulWidget {
+class EditExercise extends StatefulWidget {
   final String? selectedImage;
-  const AddExercise({super.key, required this.selectedImage});
+  const EditExercise({super.key, required this.selectedImage});
 
   @override
-  State<AddExercise> createState() => _AddExerciseState();
+  State<EditExercise> createState() => _EditExerciseState();
 }
 
-class _AddExerciseState extends State<AddExercise> {
+class _EditExerciseState extends State<EditExercise> {
   final List<String> muscles = [
     '14228733.png',
     '142287352.png',

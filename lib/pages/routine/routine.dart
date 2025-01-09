@@ -8,49 +8,25 @@ class Routine extends StatelessWidget {
   final List<List<String>> routines = [
     [
       "Full Body",
-      "A balanced routine targeting the entire body. ",
-      "assets/images/bodySections/6583949.png"
+      "A balanced routine targeting the entire body.",
+      "6583949.png"
     ],
-    [
-      "Legs",
-      "Focus on building strength in your legs.",
-      "assets/images/bodySections/6583951.png"
-    ],
+    ["Legs", "Focus on building strength in your legs.", "6583951.png"],
     [
       "Chest",
       "Target your chest muscles for strength and definition.",
-      "assets/images/bodySections/65839812.png"
+      "65839812.png"
     ],
-    [
-      "Arms",
-      "Work on biceps, triceps, and forearms.",
-      "assets/images/bodySections/6583951.png"
-    ],
-    [
-      "Back",
-      "Improve posture and build back strength.",
-      "assets/images/bodySections/6583949.png"
-    ],
-    [
-      "Core",
-      "Strengthen your abs and stabilize your core.",
-      "assets/images/bodySections/6583949.png"
-    ],
-    [
-      "Yoga",
-      "Enhance flexibility and reduce stress with yoga.",
-      "assets/images/bodySections/6583949.png"
-    ],
+    ["Arms", "Work on biceps, triceps, and forearms.", "6583951.png"],
+    ["Back", "Improve posture and build back strength.", "6583949.png"],
+    ["Core", "Strengthen your abs and stabilize your core.", "6583949.png"],
+    ["Yoga", "Enhance flexibility and reduce stress with yoga.", "6583949.png"],
     [
       "Cardio",
       "Boost your endurance with high-intensity cardio.",
-      "assets/images/bodySections/6583949.png"
+      "6583949.png"
     ],
-    [
-      "Stretching",
-      "Improve flexibility and recover faster with .",
-      "assets/images/bodySections/6583949.png"
-    ],
+    ["Stretching", "Improve flexibility and recover faster.", "6583949.png"],
   ];
 
   final List<List<Color>> gradients = [
@@ -86,8 +62,12 @@ class Routine extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddRoutine(selectedImage: '',)));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AddRoutine(
+                              selectedImage: '',
+                            )));
               },
               icon: Icon(Icons.add_box))
         ],
@@ -106,10 +86,13 @@ class Routine extends StatelessWidget {
             return RoutineTile(
               title: routines[index][0],
               description: routines[index][1],
-              image: routines[index][2],
+              image: "assets/images/bodySections/${routines[index][2]}",
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Exercises()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            Exercises(currentImage: routines[index][2])));
               },
             );
           },

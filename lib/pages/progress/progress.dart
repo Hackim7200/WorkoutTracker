@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/my_data.dart';
 import 'package:workout_tracker/components/prorgess_table.dart';
 import 'package:workout_tracker/components/set_input.dart';
+import 'package:workout_tracker/pages/Notes/add_note.dart';
 import 'package:workout_tracker/pages/Notes/notes.dart';
+import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
 
 class Progress extends StatefulWidget {
-  Progress({super.key});
+  final String currentImage;
+  Progress({super.key, required this.currentImage});
 
   @override
   State<Progress> createState() => _ProgressState();
@@ -56,7 +59,22 @@ class _ProgressState extends State<Progress> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: appBarColor,
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return EditExercise(selectedImage: widget.currentImage);
+                }));
+              },
+              icon: Icon(Icons.edit)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddNote();
+                }));
+              },
+              icon: Icon(Icons.note_add)),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: floatingIconColor,

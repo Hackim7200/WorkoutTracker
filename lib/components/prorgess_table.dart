@@ -11,7 +11,7 @@ class ProrgessTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final numberOfRows = mydata.rowCount;
-    final numberOfRowsPerPage = 12;
+    final numberOfRowsPerPage = 9;
 
     return PaginatedDataTable(
       rowsPerPage: numberOfRowsPerPage,

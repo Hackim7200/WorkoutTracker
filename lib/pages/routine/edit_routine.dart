@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/image_selection.dart';
 
-class AddRoutine extends StatefulWidget {
+class EditRoutine extends StatefulWidget {
   final String selectedImage;
-  const AddRoutine({super.key, required this.selectedImage});
+  const EditRoutine({super.key, required this.selectedImage});
 
   @override
-  State<AddRoutine> createState() => _AddRoutineState();
+  State<EditRoutine> createState() => _EditRoutineState();
 }
 
-class _AddRoutineState extends State<AddRoutine> {
+class _EditRoutineState extends State<EditRoutine> {
   late String _selectedImage;
 
   @override
@@ -91,7 +91,7 @@ class _AddRoutineState extends State<AddRoutine> {
         backgroundColor: appBarColor,
         centerTitle: true,
         title: Text(
-          "N E W  R O U T I N E",
+          "E D I T  R O U T I N E",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: textColor,
@@ -167,7 +167,7 @@ class _AddRoutineState extends State<AddRoutine> {
                   child: TextField(
                     controller: titleController,
                     decoration: InputDecoration(
-                      labelText: "Title",
+                      labelText: "New Title",
                       labelStyle: TextStyle(color: textColor),
                       border: InputBorder.none,
                     ),
@@ -190,7 +190,7 @@ class _AddRoutineState extends State<AddRoutine> {
                     controller: descriptionController,
                     maxLines: 4,
                     decoration: InputDecoration(
-                      labelText: "Description",
+                      labelText: "New Description",
                       labelStyle: TextStyle(color: textColor),
                       border: InputBorder.none,
                     ),
@@ -213,7 +213,7 @@ class _AddRoutineState extends State<AddRoutine> {
                   ),
                 ),
                 child: Text(
-                  "Add Routine",
+                  "Confirm",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: scaffoldColor,

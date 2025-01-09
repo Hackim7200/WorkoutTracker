@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/exercise_tile.dart';
 import 'package:workout_tracker/pages/exercise/add_exercise.dart';
-import 'package:workout_tracker/pages/exercise/exercises_option.dart';
+
 import 'package:workout_tracker/pages/progress/progress.dart';
+import 'package:workout_tracker/pages/routine/edit_routine.dart';
 
 class Exercises extends StatefulWidget {
+  final String currentImage;
   const Exercises({
     super.key,
+    required this.currentImage,
   });
 
   @override
@@ -51,8 +54,22 @@ class _ExercisesState extends State<Exercises> {
           actions: [
             IconButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddExercise(selectedImage: '',)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EditRoutine(
+                                selectedImage: widget.currentImage,
+                              )));
+                },
+                icon: Icon(Icons.edit)),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddExercise(
+                                selectedImage: '',
+                              )));
                 },
                 icon: Icon(Icons.add_box))
           ],
@@ -65,8 +82,12 @@ class _ExercisesState extends State<Exercises> {
                 img: "assets/images/muscles/${exercises[index][2]}",
                 title: exercises[index][0],
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Progress()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Progress(
+                                currentImage: exercises[index][2],
+                              )));
                 },
               );
             }));
