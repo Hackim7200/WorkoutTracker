@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+
 import 'package:workout_tracker/components/image_selection.dart';
+import 'package:workout_tracker/database/database_service.dart';
 
 class AddExercise extends StatefulWidget {
-  final String? selectedImage;
-  const AddExercise({super.key, required this.selectedImage});
+  final String selectedImage;
+  final int routineId;
+  const AddExercise(
+      {super.key, required this.selectedImage, required this.routineId});
 
   @override
   State<AddExercise> createState() => _AddExerciseState();
 }
 
 class _AddExerciseState extends State<AddExercise> {
+  final DatabaseService databaseService = DatabaseService.instance;
+
   final List<String> muscles = [
     '14228733.png',
     '142287352.png',
@@ -64,7 +70,8 @@ class _AddExerciseState extends State<AddExercise> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController _controller = TextEditingController();
   final List<String> _keywords = [];
-  String? _selectedImage;
+
+  late String _selectedImage;
 
   @override
   void initState() {
@@ -88,8 +95,93 @@ class _AddExerciseState extends State<AddExercise> {
   }
 
   // Dropdown variables
-  int? selectedValue = 4; // Default selected value
-  final List<int> dropdownItems = [1, 2, 3, 4, 5];
+  int selectedSets = 4; // Default selected value
+  final List<int> setOptions = [1, 2, 3, 4, 5];
+
+  String selectedRisk = "MED"; // Default selected value
+  final List<String> riskOptions = ["LOW", "MED", "HIGH"];
+
+  double selectedProgress = 0.5; // Default selected value
+  final List<double> progressOptions = [
+    0.5,
+    1,
+    1.5,
+    2,
+    2.5,
+    3,
+    3.5,
+    4,
+    4.5,
+    5,
+    5.5
+  ];
+
+  int selectedMinRep = 1;
+  int selectedMaxRep = 1;
+  final List<int> minRepOptions = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ];
+  final List<int> maxRepOptions = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -188,93 +280,337 @@ class _AddExerciseState extends State<AddExercise> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Dropdown for sets
-              Card(
-                color: cardColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text("How many sets")),
-                      DropdownButton<int>(
-                        value: selectedValue,
-                        icon: Icon(
-                          Icons.arrow_drop_down,
-                          color: appBarColor,
-                          size: 28,
-                        ),
-                        style: TextStyle(color: textColor, fontSize: 16),
-                        underline: SizedBox.shrink(),
-                        onChanged: (int? newValue) {
-                          setState(() {
-                            selectedValue = newValue;
-                          });
-                        },
-                        items: dropdownItems.map((int item) {
-                          return DropdownMenuItem<int>(
-                            value: item,
-                            child: Text(item.toString()),
-                          );
-                        }).toList(),
+
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    ],
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+
+                        // padding: const EdgeInsets.symmetric(
+                        // horizontal: 20.0, vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: Text("Sets",
+                                    style: TextStyle(fontSize: 16))),
+                            DropdownButton<int>(
+                              value: selectedSets,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: appBarColor,
+                                size: 28,
+                              ),
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              underline: SizedBox.shrink(),
+                              onChanged: (int? newValue) {
+                                setState(() {
+                                  selectedSets = newValue!;
+                                });
+                              },
+                              items: setOptions.map((int item) {
+                                return DropdownMenuItem<int>(
+                                  value: item,
+                                  child: Text(item.toString()),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+
+                        // padding: const EdgeInsets.symmetric(
+                        // horizontal: 20.0, vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: Text("Risk",
+                                    style: TextStyle(fontSize: 16))),
+                            DropdownButton<String>(
+                              value: selectedRisk,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: appBarColor,
+                                size: 28,
+                              ),
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              underline: SizedBox.shrink(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedRisk = newValue!;
+                                });
+                              },
+                              items: riskOptions.map((String item) {
+                                return DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(item),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 16),
 
-              // Keywords TextField
-              Card(
-                color: cardColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          labelText: "Muscles activated",
-                          labelStyle: TextStyle(color: textColor),
-                          border: InputBorder.none,
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Min reps",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            DropdownButton<int>(
+                              value: selectedMinRep,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: appBarColor,
+                                size: 28,
+                              ),
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              underline: SizedBox.shrink(),
+                              onChanged: (int? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    selectedMinRep = newValue;
+                                    // Ensure `selectedMaxRep` is >= `selectedMinRep`
+                                    if (selectedMaxRep < selectedMinRep) {
+                                      selectedMaxRep = selectedMinRep;
+                                    }
+                                  });
+                                }
+                              },
+                              items: minRepOptions.map((int item) {
+                                return DropdownMenuItem<int>(
+                                  value: item,
+                                  child: Text(item.toString()),
+                                );
+                              }).toList(),
+                            ),
+                          ],
                         ),
-                        style: TextStyle(color: textColor),
                       ),
                     ),
-                    IconButton(
-                      onPressed: _addKeyword,
-                      icon: Icon(
-                        Icons.add,
-                        color: appBarColor,
-                        size: 28,
+                  ),
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Max reps",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            DropdownButton<int>(
+                              value: selectedMaxRep,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: appBarColor,
+                                size: 28,
+                              ),
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              underline: SizedBox.shrink(),
+                              onChanged: (int? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    selectedMaxRep = newValue;
+                                    // Ensure `selectedMinRep` is <= `selectedMaxRep`
+                                    if (selectedMinRep > selectedMaxRep) {
+                                      selectedMinRep = selectedMaxRep;
+                                    }
+                                  });
+                                }
+                              },
+                              items: maxRepOptions
+                                  .where((item) => item >= selectedMinRep)
+                                  .map((int item) {
+                                return DropdownMenuItem<int>(
+                                  value: item,
+                                  child: Text(item.toString()),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ]),
-                ),
+                  ),
+                ],
               ),
 
-              Center(
-                child: Text(
-                  _keywords.join(", "),
-                  style: TextStyle(fontSize: 20),
-                ),
+              // Dropdown for sets
+
+              const SizedBox(height: 16),
+
+              // Keywords TextField
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              decoration: InputDecoration(
+                                labelText: "Muscles",
+                                labelStyle: TextStyle(color: textColor),
+                                border: InputBorder.none,
+                              ),
+                              style: TextStyle(color: textColor),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: _addKeyword,
+                            icon: Icon(
+                              Icons.add,
+                              color: appBarColor,
+                              size: 28,
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+
+                        // padding: const EdgeInsets.symmetric(
+                        // horizontal: 20.0, vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: Text("Monthly Progress (KG)",
+                                    style: TextStyle(fontSize: 15))),
+                            DropdownButton<double>(
+                              value: selectedProgress,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: appBarColor,
+                                size: 28,
+                              ),
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              underline: SizedBox.shrink(),
+                              onChanged: (double? newValue) {
+                                setState(() {
+                                  selectedProgress = newValue!;
+                                });
+                              },
+                              items: progressOptions.map((double item) {
+                                return DropdownMenuItem<double>(
+                                  value: item,
+                                  child: Text(item.toString()),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Center(
+              //   child: Text(
+              //     _keywords.join(", "),
+              //     style: TextStyle(fontSize: 20),
+              //   ),
+              // ),
+
+              const SizedBox(height: 24),
+
+              Wrap(
+                spacing: 8.0,
+                children: _keywords.map((keyword) {
+                  return Chip(
+                    label: Text(keyword),
+                    deleteIcon: Icon(Icons.close),
+                    onDeleted: () {
+                      setState(() {
+                        _keywords.remove(keyword);
+                      });
+                    },
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 24),
 
               // Submit Button
               ElevatedButton(
-                onPressed: () {
-                  // Handle submission
-                },
+                onPressed: (_keywords.isEmpty ||
+                        _selectedImage == "" ||
+                        titleController.text == "")
+                    ? null
+                    : () {
+                        Navigator.pop(context);
+                        databaseService.addExercise(
+                            widget.routineId,
+                            titleController.text,
+                            _selectedImage,
+                            selectedMaxRep,
+                            selectedMinRep,
+                            selectedSets,
+                            selectedProgress,
+                            selectedRisk,
+                            _keywords.join(", "));
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),

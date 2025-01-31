@@ -200,7 +200,9 @@ class _EditExerciseState extends State<EditExercise> {
                       horizontal: 20.0, vertical: 8.0),
                   child: Row(
                     children: [
-                      Expanded(child: Text("How many sets")),
+                      Expanded(
+                          child: Text("How many sets",
+                              style: TextStyle(fontSize: 16))),
                       DropdownButton<int>(
                         value: selectedValue,
                         icon: Icon(

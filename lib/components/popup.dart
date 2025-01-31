@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,6 +19,8 @@ class MyApp extends StatelessWidget {
 }
 
 class ScrollableCardList extends StatelessWidget {
+  const ScrollableCardList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -37,7 +41,7 @@ class CardWidget extends StatelessWidget {
   final int setNumber;
   final int totalSets;
 
-  CardWidget({required this.setNumber, required this.totalSets});
+  const CardWidget({super.key, required this.setNumber, required this.totalSets});
 
   @override
   Widget build(BuildContext context) {

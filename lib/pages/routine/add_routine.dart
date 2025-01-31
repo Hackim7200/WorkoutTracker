@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/image_selection.dart';
+import 'package:workout_tracker/database/database_service.dart';
 
 class AddRoutine extends StatefulWidget {
   final String selectedImage;
@@ -10,6 +11,8 @@ class AddRoutine extends StatefulWidget {
 }
 
 class _AddRoutineState extends State<AddRoutine> {
+  final DatabaseService _databaseService = DatabaseService.instance;
+
   late String _selectedImage;
 
   @override
@@ -203,6 +206,11 @@ class _AddRoutineState extends State<AddRoutine> {
               // Submit Button
               ElevatedButton(
                 onPressed: () {
+                  _databaseService.addRoutine(titleController.text,
+                      descriptionController.text, _selectedImage);
+                  Navigator.pop(context);
+                  setState(() {});
+
                   // Handle submission
                 },
                 style: ElevatedButton.styleFrom(

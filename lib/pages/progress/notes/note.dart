@@ -11,13 +11,13 @@ class Note extends StatelessWidget {
     final Color noteBackground;
     final Icon noteIcon;
 
-    if (type == "caution") {
+    if (type == "CAUTION") {
       noteText = Colors.black; // Dark text for caution to stand out more
       noteBackground = Color.fromRGBO(
           231, 111, 81, 1); // Amber background for caution (vibrant yellow)
       noteIcon =
           Icon(Icons.warning, color: Colors.black); // Warning icon for caution
-    } else if (type == "tips") {
+    } else if (type == "TIPS") {
       noteText = Colors.white; // White text for tips
       noteBackground = Color.fromRGBO(54, 186, 152,
           1); // Teal background for tips (refreshing and easy-going)

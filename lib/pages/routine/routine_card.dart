@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,6 +23,8 @@ class HomePage extends StatelessWidget {
     Routine('Leg Day Routine', 'assets/stretching.png'),
     Routine('Shoulder & Abs Routine', 'assets/stretching.png'),
   ];
+
+  HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,7 @@ class Routine {
 class RoutineCard extends StatelessWidget {
   final Routine routine;
 
-  RoutineCard({required this.routine});
+  const RoutineCard({super.key, required this.routine});
 
   @override
   Widget build(BuildContext context) {
