@@ -36,19 +36,10 @@ class _AddSetPopupState extends State<AddSetPopup> {
     int reps = int.parse(repControler.text);
     double weight = double.parse(weightController.text);
 
-    int fetchedLastSetNumber = await databaseService.getLastSetNumber(
+    int lastSetNumber = await databaseService.getLastSetNumber(
         widget.routineId, widget.exerciseId, widget.workoutId);
 
-    await databaseService.addSet(
-      widget.workoutId,
-      fetchedLastSetNumber + 1,
-      reps,
-      weight,
-    );
-
-    setState(() {
-      setNumber = fetchedLastSetNumber + 1;
-    });
+    databaseService.addSet(widget.workoutId, lastSetNumber + 1, reps, weight);
 
     repControler.clear();
     weightController.clear();
@@ -70,7 +61,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('ADD A SET $setNumber / ${widget.totalSet}'),
+              title: Text('ADD A SET TO YOUR WORKOUT'),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,

@@ -228,39 +228,45 @@ class DatabaseService {
     }
   }
 
-  Future<int> getWorkout(int routineId, int exerciseId) async {
+  Future<Map<String, dynamic>> getLastWorkout(
+      int routineId, int exerciseId) async {
     final db = await database; // Get the database instance
+
     final String query = '''
-    SELECT Workout.id 
+    SELECT Workout.id AS id, Workout.date AS date
     FROM Workout
     JOIN Exercise ON Workout.$_workoutExerciseIdColumnName = Exercise.id
     JOIN Routine ON Routine.id = Exercise.$_exerciseRoutineIdColumnName
-    WHERE Routine.id = ? AND Exercise.id = ?;
+    WHERE Routine.id = ? AND Exercise.id = ?
+    ORDER BY Workout.date DESC
+    LIMIT 1;  -- Select the most recent workout
   ''';
 
     try {
-      // Query the database with the provided routineId and exerciseId
-      final data = await db.rawQuery(query, [routineId, exerciseId]);
+      final List<Map<String, dynamic>> data =
+          await db.rawQuery(query, [routineId, exerciseId]);
 
       if (data.isNotEmpty) {
-        // Extract the workout ID from the first result row
-        print(" workout exists");
-        int workoutId = data.last["id"] as int;
-        print(workoutId);
+        print("Workout exists");
 
-        return workoutId;
+        int workoutId = data.first["id"] as int;
+        String? date =
+            data.first["date"] as String? ?? ""; // Handle possible null values
+
+        print("Workout ID: $workoutId, Date: $date");
+
+        return {"id": workoutId, "date": date};
       } else {
-        print("no workout exists");
-        // No matching workout found
-        return -1;
+        print("No workout exists");
+        return {"id": -1, "date": ""}; // Default response when no data exists
       }
     } catch (e) {
-      // Handle any exceptions that may occur
-      throw Exception("Error retrieving workout: $e");
+      print("Error retrieving workout: $e");
+      return {"id": -1, "date": ""}; // Return a default error response
     }
   }
 
-  Future<List<SetModel>> getSetsOfWorkout(
+  Future<List<SetModel>> getLastSet(
       int routineId, int exerciseId, int workoutId) async {
     final db = await database; // Get the database instance
     final String query = '''
@@ -300,92 +306,105 @@ class DatabaseService {
     }
   }
 
-//   Future<List<SetModel>> getSetsOfAllWorkouts(
-//       int routineId, int exerciseId) async {
-//     final db = await database; // Get the database instance
-//     final String query = '''
-// SELECT
-//     Workout.date,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 1 THEN WorkoutSet.weight END) AS weight1,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 1 THEN WorkoutSet.reps END) AS set1,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 2 THEN WorkoutSet.weight END) AS weight2,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 2 THEN WorkoutSet.reps END) AS set2,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 3 THEN WorkoutSet.weight END) AS weight3,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 3 THEN WorkoutSet.reps END) AS set3,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 4 THEN WorkoutSet.weight END) AS weight4,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 4 THEN WorkoutSet.reps END) AS set4,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 5 THEN WorkoutSet.weight END) AS weight5,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 5 THEN WorkoutSet.reps END) AS set5,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 6 THEN WorkoutSet.weight END) AS weight6,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 6 THEN WorkoutSet.reps END) AS set6,
-// 	    MAX(CASE WHEN WorkoutSet.setNumber = 7 THEN WorkoutSet.weight END) AS weight7,
-//     MAX(CASE WHEN WorkoutSet.setNumber = 7 THEN WorkoutSet.reps END) AS set7
-// FROM Workout
-// JOIN Exercise ON Exercise.id = Workout.exerciseId
-// JOIN Routine ON Routine.id = Exercise.routineId
-// JOIN WorkoutSet ON WorkoutSet.workout_id = Workout.id
-// WHERE Routine.id = 1 AND Exercise.id = 1
-// GROUP BY Workout.id;
+  Future<int> getSetsOfWorkout(
+      int routineId, int exerciseId, int workoutId) async {
+    final db = await database;
+    const String query = '''
+      SELECT MAX(number) AS lastSet
+      FROM StrengthTrainingSet
+      JOIN Workout ON Workout.id = StrengthTrainingSet.workout_id
+      JOIN Exercise ON Exercise.id = Workout.exercise_id
+      JOIN Routine ON Routine.id = Exercise.routine_id
+      WHERE Routine.id = ? AND Exercise.id = ? AND Workout.id = ?;
+    ''';
 
-//   ''';
-
-//     try {
-//       // Query the database with the provided routineId, exerciseId, and workoutId
-//       final data = await db.rawQuery(query, [
-//         routineId,
-//         exerciseId,
-//       ]);
-//       if (data.isNotEmpty) {
-//         print("Data exists");
-//         List<SetModel> sets = data
-//             .map((e) => SetModel(
-//                   id: e[_setIdColumnName] as int,
-//                   setNumber: e[_setNumberColumnName] as int,
-//                   weight: e[_setWeightColumnName] as double,
-//                   reps: e[_setRepsColumnName] as int,
-//                 ))
-//             .toList();
-//         print(sets);
-
-//         return sets;
-//       } else {
-//         print("Data doesnt exist");
-//         return [];
-//       }
-//     } catch (e) {
-//       // Handle any exceptions that may occur
-//       throw Exception("Error retrieving workout sets: $e");
-//     }
-//   }
+    try {
+      final data = await db.rawQuery(query, [routineId, exerciseId, workoutId]);
+      return (data.isNotEmpty && data.first["lastSet"] != null)
+          ? data.first["lastSet"] as int
+          : -1;
+    } catch (e) {
+      print("Error retrieving workout sets: $e");
+      return -1;
+    }
+  }
 
   Future<List<Map<String, dynamic>>> getSetsOfAllWorkouts(
       int routineId, int exerciseId) async {
     final db = await database;
 
     final String query = '''
-  SELECT 
+    SELECT 
+      Workout.$_workoutIdColumnName AS id,
       Workout.$_workoutDateColumnName AS date,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight1,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps1,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight2,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps2,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight3,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps3
-  FROM $_workoutTableName AS Workout
-  JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
-  JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
-  JOIN $_setTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
-  WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
-  GROUP BY Workout.$_workoutIdColumnName
-  ORDER BY Workout.$_workoutDateColumnName DESC;
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps3,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight4,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps4,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight5,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps5,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight6,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps6,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight7,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps7,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight8,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps8,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight9,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps9,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight10,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps10
+    FROM $_workoutTableName AS Workout
+    JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+    JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+    JOIN $_setTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
+    WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
+    GROUP BY Workout.$_workoutIdColumnName
+    ORDER BY Workout.$_workoutDateColumnName DESC;
   ''';
 
     try {
       final List<Map<String, dynamic>> data =
           await db.rawQuery(query, [routineId, exerciseId]);
 
-      print(data);
-      return data;
+      List<Map<String, dynamic>> workouts = [];
+
+      for (var element in data) {
+        workouts.add({
+          "id": element["id"],
+          "date": element["date"],
+          "weights": [
+            element["weight1"] ?? 0.0,
+            element["weight2"] ?? 0.0,
+            element["weight3"] ?? 0.0,
+            element["weight4"] ?? 0.0,
+            element["weight5"] ?? 0.0,
+            element["weight6"] ?? 0.0,
+            element["weight7"] ?? 0.0,
+            element["weight8"] ?? 0.0,
+            element["weight9"] ?? 0.0,
+            element["weight10"] ?? 0.0
+          ],
+          "reps": [
+            element["reps1"] ?? 0,
+            element["reps2"] ?? 0,
+            element["reps3"] ?? 0,
+            element["reps4"] ?? 0,
+            element["reps5"] ?? 0,
+            element["reps6"] ?? 0,
+            element["reps7"] ?? 0,
+            element["reps8"] ?? 0,
+            element["reps9"] ?? 0,
+            element["reps10"] ?? 0
+          ],
+        });
+      }
+
+      print(workouts);
+      return workouts;
     } catch (e) {
       throw Exception("Error retrieving workout sets: $e");
     }

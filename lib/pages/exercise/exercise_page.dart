@@ -4,7 +4,7 @@ import 'package:workout_tracker/database/database_service.dart';
 import 'package:workout_tracker/database/models/exercise_model.dart';
 import 'package:workout_tracker/pages/exercise/add_exercise.dart';
 
-import 'package:workout_tracker/pages/progress/progress.dart';
+import 'package:workout_tracker/pages/progress/progress_page.dart';
 import 'package:workout_tracker/pages/routine/edit_routine.dart';
 
 class ExercisePage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _ExercisePageState extends State<ExercisePage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Progress(
+                              builder: (context) => ProgressPage(
                                     currentImage: exercise.image,
                                     exerciseId: exercise.id,
                                     routineId: widget.routineId,
@@ -62,7 +62,8 @@ class _ExercisePageState extends State<ExercisePage> {
                                         .minRep, // Add appropriate value
                                     maxRep: exercise
                                         .maxRep, // Add appropriate value
-                                    risk: exercise.risk, //
+                                    risk: exercise.risk,
+                                    maxSet: exercise.sets, //
                                   )));
                     },
                   );
