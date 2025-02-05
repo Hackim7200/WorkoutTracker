@@ -108,6 +108,21 @@ class _ProgressPageState extends State<ProgressPage> {
         actions: [
           IconButton(
               onPressed: () {
+                // Your input date
+                String date = "04 02 2025";
+
+                // Parse the date using DateFormat
+                DateFormat inputFormat = DateFormat("dd MM yyyy");
+                DateTime parsedDate = inputFormat.parse(date);
+
+                // Format it to ISO 8601 format (YYYY-MM-DD)
+                String isoDate = DateFormat("yyyy-MM-dd").format(parsedDate);
+
+                databaseService.addWorkoutWithDate(widget.exerciseId, isoDate);
+              },
+              icon: Icon(Icons.abc)),
+          IconButton(
+              onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return EditExercise(selectedImage: widget.currentImage);
                 }));
@@ -166,10 +181,6 @@ class _ProgressPageState extends State<ProgressPage> {
                     maxRep: widget.maxRep,
                     progressOverload: widget.monthlyProgressGoals,
                     risk: widget.risk,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Divider(),
                   ),
                   workoutId != -1
                       ? ProgressTable(

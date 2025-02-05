@@ -49,6 +49,8 @@ class DatabaseService {
   final String _setNumberColumnName = "number";
   final String _setRepsColumnName = "reps";
   final String _setWeightColumnName = "weight";
+  final String _setPercentageIncreaseColumnName = "percentageIncrease";
+  final String _setWeightDifferenceColumnName = "weightDifference";
 
   // Private constructor
 
@@ -118,13 +120,16 @@ class DatabaseService {
 
           db.execute("""
          CREATE TABLE $_setTableName (
-  $_setIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-  $_setWorkoutIdColumnName INTEGER NOT NULL,
-  $_setNumberColumnName INTEGER NOT NULL,
-  $_setWeightColumnName REAL NOT NULL,
-  $_setRepsColumnName INTEGER NOT NULL,
-  FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
-);
+              $_setIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+              $_setWorkoutIdColumnName INTEGER NOT NULL,
+              $_setNumberColumnName INTEGER NOT NULL,
+              $_setWeightColumnName REAL NOT NULL,
+              $_setRepsColumnName INTEGER NOT NULL,
+              $_setWeightDifferenceColumnName REAL NOT NULL,
+              $_setPercentageIncreaseColumnName REAL NOT NULL,
+
+              FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+            );
 
               """);
         },
@@ -253,7 +258,7 @@ class DatabaseService {
         String? date =
             data.first["date"] as String? ?? ""; // Handle possible null values
 
-        print("Workout ID: $workoutId, Date: $date");
+        // print("Workout ID: $workoutId, Date: $date");
 
         return {"id": workoutId, "date": date};
       } else {
@@ -363,7 +368,7 @@ class DatabaseService {
     JOIN $_setTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
     WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
     GROUP BY Workout.$_workoutIdColumnName
-    ORDER BY Workout.$_workoutDateColumnName DESC;
+    ORDER BY Workout.$_workoutDateColumnName ASC;
   ''';
 
     try {
@@ -403,7 +408,7 @@ class DatabaseService {
         });
       }
 
-      print(workouts);
+      // print(workouts);
       return workouts;
     } catch (e) {
       throw Exception("Error retrieving workout sets: $e");
@@ -527,8 +532,8 @@ class DatabaseService {
     }
   }
 
-  Future<void> addSet(
-      int workoutId, int setNumber, int reps, double weight) async {
+  Future<void> addSet(int workoutId, int setNumber, int reps, double weight,
+      double weightDifference, double percentageIncrease) async {
     try {
       final db = await database;
       await db.insert(
@@ -538,11 +543,97 @@ class DatabaseService {
           _setNumberColumnName: setNumber,
           _setRepsColumnName: reps,
           _setWeightColumnName: weight,
+          _setWeightDifferenceColumnName: weightDifference,
+          _setPercentageIncreaseColumnName: percentageIncrease,
         },
       );
       print('set added successfully');
     } catch (e) {
       throw Exception("Error adding set: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>> getSetsOfSecondToLastWorkout(
+      int routineId, int exerciseId) async {
+    final db = await database;
+
+    final String query = '''
+    SELECT 
+      Workout.$_workoutIdColumnName AS id,
+      Workout.$_workoutDateColumnName AS date,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight1,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps1,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight2,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps2,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight3,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps3,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight4,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps4,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight5,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps5,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight6,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps6,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight7,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps7,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight8,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps8,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight9,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps9,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight10,
+      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps10
+    FROM $_workoutTableName AS Workout
+    JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+    JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+    JOIN $_setTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
+    WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
+    GROUP BY Workout.$_workoutIdColumnName
+    ORDER BY Workout.$_workoutDateColumnName DESC
+    LIMIT 1
+    OFFSET 1;
+  ''';
+
+    try {
+      final List<Map<String, dynamic>> data =
+          await db.rawQuery(query, [routineId, exerciseId]);
+
+      if (data.isEmpty) {
+        return {}; // Return an empty map if there's no second-to-last workout
+      }
+
+      final Map<String, dynamic> workout = {
+        "id": data.first["id"],
+        "date": data.first["date"],
+        "weights": [
+          data.first["weight1"] ?? 0.0,
+          data.first["weight2"] ?? 0.0,
+          data.first["weight3"] ?? 0.0,
+          data.first["weight4"] ?? 0.0,
+          data.first["weight5"] ?? 0.0,
+          data.first["weight6"] ?? 0.0,
+          data.first["weight7"] ?? 0.0,
+          data.first["weight8"] ?? 0.0,
+          data.first["weight9"] ?? 0.0,
+          data.first["weight10"] ?? 0.0
+        ],
+        "reps": [
+          data.first["reps1"] ?? 0,
+          data.first["reps2"] ?? 0,
+          data.first["reps3"] ?? 0,
+          data.first["reps4"] ?? 0,
+          data.first["reps5"] ?? 0,
+          data.first["reps6"] ?? 0,
+          data.first["reps7"] ?? 0,
+          data.first["reps8"] ?? 0,
+          data.first["reps9"] ?? 0,
+          data.first["reps10"] ?? 0
+        ],
+      };
+
+      print("---------- $workout");
+
+      return workout; // Wrap in a list to match return type
+    } catch (e) {
+      throw Exception("Error retrieving workout sets: $e");
     }
   }
 }

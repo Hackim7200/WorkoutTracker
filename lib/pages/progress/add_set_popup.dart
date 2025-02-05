@@ -20,28 +20,56 @@ class AddSetPopup extends StatefulWidget {
 
 class _AddSetPopupState extends State<AddSetPopup> {
   final DatabaseService databaseService = DatabaseService.instance;
-  final TextEditingController repControler = TextEditingController();
+  final TextEditingController repController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
   int setNumber = -1;
+  Map<String, dynamic>? prevWorkoutData; // Make it nullable
 
   @override
-  void dispose() {
-    repControler.dispose();
-    weightController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    fetchPrevWorkoutData();
+  }
+
+  /// Fetch previous workout data asynchronously
+  void fetchPrevWorkoutData() async {
+    Map<String, dynamic> data = await databaseService
+        .getSetsOfSecondToLastWorkout(widget.routineId, widget.exerciseId);
+
+    setState(() {
+      prevWorkoutData = data;
+    });
+
+    // Debug print the result
+    print("Previous Workout Data: $prevWorkoutData");
   }
 
   void _submitAndResetAllVariables() async {
-    print("Submitted set");
-    int reps = int.parse(repControler.text);
-    double weight = double.parse(weightController.text);
+    int reps = int.tryParse(repController.text) ?? 0;
+    double weight = double.tryParse(weightController.text) ?? 0.0;
 
     int lastSetNumber = await databaseService.getLastSetNumber(
         widget.routineId, widget.exerciseId, widget.workoutId);
 
-    databaseService.addSet(widget.workoutId, lastSetNumber + 1, reps, weight);
+    var weights = prevWorkoutData?["weights"];
+    if (weights != null && weights.isNotEmpty && lastSetNumber > 0) {
+      double previousWeight = weights[lastSetNumber];
+      double change = weight - previousWeight;
+      double percentageChange =
+          previousWeight != 0 ? (change / previousWeight) * 100 : 0;
 
-    repControler.clear();
+      print("Previous Weight: $previousWeight");
+      print("Current Weight: $weight");
+      print("Change: $change");
+      print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
+
+      await databaseService.addSet(widget.workoutId, lastSetNumber + 1, reps,
+          weight, change, percentageChange);
+    } else {
+      print("No previous workout data available.");
+    }
+
+    repController.clear();
     weightController.clear();
   }
 
@@ -76,7 +104,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
                     style: TextStyle(color: textColor),
                   ),
                   TextField(
-                    controller: repControler,
+                    controller: repController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: "Reps",
@@ -84,16 +112,20 @@ class _AddSetPopupState extends State<AddSetPopup> {
                     ),
                     style: TextStyle(color: textColor),
                   ),
+                  if (prevWorkoutData != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      "Previous Workout Data: $prevWorkoutData",
+                      style: TextStyle(color: textColor, fontSize: 12),
+                    ),
+                  ],
                 ],
               ),
               actions: [
                 CircleAvatar(
                   backgroundColor: floatingIconColor,
                   child: IconButton(
-                    icon: Icon(
-                      Icons.save,
-                      color: textColor,
-                    ),
+                    icon: Icon(Icons.save, color: textColor),
                     onPressed: () {
                       _submitAndResetAllVariables();
                       Navigator.of(context).pop();

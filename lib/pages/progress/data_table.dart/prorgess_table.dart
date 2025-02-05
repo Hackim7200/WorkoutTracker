@@ -27,10 +27,10 @@ class ProgressTable extends StatelessWidget {
         : 0;
 
     List<DataColumn> columns = [];
-    columns.add(DataColumn(label: Text("Date", style: fontStyle)));
+    columns.add(DataColumn(label: Text("date", style: fontStyle)));
     for (int i = 0; i < setNumber; i++) {
-      columns.add(DataColumn(label: Text("Weight $i", style: fontStyle)));
-      columns.add(DataColumn(label: Text("reps $i", style: fontStyle)));
+      columns.add(DataColumn(label: Text("| weight", style: fontStyle)));
+      columns.add(DataColumn(label: Text(" rep", style: fontStyle)));
     }
 
     return FutureBuilder(

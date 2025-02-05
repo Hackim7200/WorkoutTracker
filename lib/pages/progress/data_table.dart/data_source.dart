@@ -46,8 +46,13 @@ class DataSource extends DataTableSource {
       String weightText = (i < weights.length) ? weights[i].toString() : "-";
       String repsText = (i < reps.length) ? reps[i].toString() : "-";
 
-      cells.add(DataCell(Text(weightText)));
-      cells.add(DataCell(Text(repsText)));
+      if (weightText == "0" || weightText == "0.0") {
+        weightText = "-";
+        repsText = "-";
+      }
+
+      cells.add(DataCell(Center(child: Text(weightText))));
+      cells.add(DataCell(Center(child: Text(repsText))));
     }
 
     return DataRow(cells: cells);
@@ -61,13 +66,4 @@ class DataSource extends DataTableSource {
 
   @override
   int get selectedRowCount => 0;
-
-  // void addRow(Map<String, dynamic> newRow) {
-  //   workouts.add(newRow);
-  //   notifyListeners(); // Notify listeners to update the table
-  // }
-
-  void refresh() {
-    loadData();
-  }
 }
