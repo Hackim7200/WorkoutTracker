@@ -62,12 +62,12 @@ class _AddSetPopupState extends State<AddSetPopup> {
       print("Current Weight: $weight");
       print("Change: $change");
       print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
-
-      await databaseService.addSet(widget.workoutId, lastSetNumber + 1, reps,
-          weight, change, percentageChange);
     } else {
       print("No previous workout data available.");
     }
+
+    await databaseService.addSet(
+        widget.workoutId, lastSetNumber + 1, reps, weight);
 
     repController.clear();
     weightController.clear();
