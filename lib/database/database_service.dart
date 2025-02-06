@@ -49,8 +49,8 @@ class DatabaseService {
   final String _setNumberColumnName = "number";
   final String _setRepsColumnName = "reps";
   final String _setWeightColumnName = "weight";
-  // final String _setPercentageIncreaseColumnName = "percentageIncrease";
-  // final String _setWeightDifferenceColumnName = "weightDifference";
+  final String _setPercentageIncreaseColumnName = "percentageIncrease";
+  final String _setWeightDifferenceColumnName = "weightDifference";
 
   // Private constructor
 
@@ -125,6 +125,13 @@ class DatabaseService {
               $_setNumberColumnName INTEGER NOT NULL,
               $_setWeightColumnName REAL NOT NULL,
               $_setRepsColumnName INTEGER NOT NULL,
+              $_setPercentageIncreaseColumnName  REAL NOT NULL,
+              $_setWeightDifferenceColumnName  REAL NOT NULL,
+
+
+
+
+
               FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
             );
 
@@ -529,8 +536,8 @@ class DatabaseService {
     }
   }
 
-  Future<void> addSet(
-      int workoutId, int setNumber, int reps, double weight) async {
+  Future<void> addSet(int workoutId, int setNumber, int reps, double weight,
+      double difference, double percentageChange) async {
     try {
       final db = await database;
       await db.insert(
@@ -540,6 +547,8 @@ class DatabaseService {
           _setNumberColumnName: setNumber,
           _setRepsColumnName: reps,
           _setWeightColumnName: weight,
+          _setWeightDifferenceColumnName: difference,
+          _setPercentageIncreaseColumnName: percentageChange
         },
       );
       print('set added successfully');

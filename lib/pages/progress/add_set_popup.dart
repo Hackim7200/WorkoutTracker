@@ -67,7 +67,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
     }
 
     await databaseService.addSet(
-        widget.workoutId, lastSetNumber + 1, reps, weight);
+        widget.workoutId, lastSetNumber + 1, reps, weight, 5.3, 99.9);
 
     repController.clear();
     weightController.clear();

@@ -109,7 +109,7 @@ class _ProgressPageState extends State<ProgressPage> {
           IconButton(
               onPressed: () {
                 // Your input date
-                String date = "04 02 2025";
+                String date = "05 02 2025";
 
                 // Parse the date using DateFormat
                 DateFormat inputFormat = DateFormat("dd MM yyyy");
@@ -117,6 +117,7 @@ class _ProgressPageState extends State<ProgressPage> {
 
                 // Format it to ISO 8601 format (YYYY-MM-DD)
                 String isoDate = DateFormat("yyyy-MM-dd").format(parsedDate);
+
 
                 databaseService.addWorkoutWithDate(widget.exerciseId, isoDate);
               },
