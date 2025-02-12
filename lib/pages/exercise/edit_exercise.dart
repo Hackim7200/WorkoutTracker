@@ -272,11 +272,15 @@ class _EditExerciseState extends State<EditExercise> {
               ),
               const SizedBox(height: 24),
 
-              // Submit Button
               ElevatedButton(
-                onPressed: () {
-                  // Handle submission
-                },
+                onPressed: (_selectedImage == "" ||
+                        titleController.text == "" ||
+                        _keywords.isEmpty)
+                    ? null
+                    : () {
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -285,7 +289,7 @@ class _EditExerciseState extends State<EditExercise> {
                   ),
                 ),
                 child: Text(
-                  "Add Exercise",
+                  "Confirm Changes",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: scaffoldColor,

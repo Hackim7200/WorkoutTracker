@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 
-import 'package:workout_tracker/pages/progress/add_set_popup.dart';
+import 'package:workout_tracker/pages/progress/weight_progress/add_set_popup.dart';
 import 'package:workout_tracker/pages/progress/goalBar/goals_bar.dart';
 import 'package:workout_tracker/pages/progress/data_table.dart/prorgess_table.dart';
 import 'package:workout_tracker/pages/progress/notes/add_note.dart';
@@ -10,7 +10,7 @@ import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
 
 import 'package:intl/intl.dart';
 
-class ProgressPage extends StatefulWidget {
+class WeightProgressPage extends StatefulWidget {
   final String currentImage;
   final int exerciseId;
   final int routineId;
@@ -20,7 +20,7 @@ class ProgressPage extends StatefulWidget {
   final String risk;
   final int maxSet;
 
-  const ProgressPage({
+  const WeightProgressPage({
     super.key,
     required this.currentImage,
     required this.exerciseId,
@@ -33,10 +33,10 @@ class ProgressPage extends StatefulWidget {
   });
 
   @override
-  State<ProgressPage> createState() => _ProgressPageState();
+  State<WeightProgressPage> createState() => _WeightProgressPageState();
 }
 
-class _ProgressPageState extends State<ProgressPage> {
+class _WeightProgressPageState extends State<WeightProgressPage> {
   final Color scaffoldColor = Color.fromRGBO(255, 250, 236, 1);
   final Color appBarColor = Color.fromRGBO(87, 142, 126, 1);
   final Color floatingIconColor = Color.fromRGBO(87, 142, 126, 1);
@@ -109,7 +109,7 @@ class _ProgressPageState extends State<ProgressPage> {
           IconButton(
               onPressed: () {
                 // Your input date
-                String date = "05 02 2025";
+                String date = "08 02 2025";
 
                 // Parse the date using DateFormat
                 DateFormat inputFormat = DateFormat("dd MM yyyy");
@@ -118,10 +118,17 @@ class _ProgressPageState extends State<ProgressPage> {
                 // Format it to ISO 8601 format (YYYY-MM-DD)
                 String isoDate = DateFormat("yyyy-MM-dd").format(parsedDate);
 
-
                 databaseService.addWorkoutWithDate(widget.exerciseId, isoDate);
               },
               icon: Icon(Icons.abc)),
+          IconButton(
+              onPressed: () {
+                int setNumber = 3;
+                int workoutId = 9;
+
+                databaseService.addSet(workoutId, setNumber, 20, 20, 5.3, 15.0);
+              },
+              icon: Icon(Icons.access_alarm)),
           IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {

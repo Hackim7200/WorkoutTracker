@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/pages/routine/routine.dart';
+import 'package:workout_tracker/pages/routine/routine_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,12 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Workrout App",
       theme: ThemeData(),
-      home: Routine(),
+      home: RoutinePage(),
     );
-    
   }
-
 }
-
-
-

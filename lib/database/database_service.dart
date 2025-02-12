@@ -42,15 +42,25 @@ class DatabaseService {
   final String _workoutExerciseIdColumnName = "exercise_id";
   final String _workoutDateColumnName = "date";
 
-  //set table and column
-  final String _setTableName = "StrengthTrainingSet";
+  //strengthTraining table and column
+  final String _strengthSetTableName = "StrengthTrainingSet";
   final String _setIdColumnName = "id";
   final String _setWorkoutIdColumnName = "workout_id";
   final String _setNumberColumnName = "number";
   final String _setRepsColumnName = "reps";
   final String _setWeightColumnName = "weight";
-  final String _setPercentageIncreaseColumnName = "percentageIncrease";
-  final String _setWeightDifferenceColumnName = "weightDifference";
+  final String _setPercentageChangeColumnName = "percentageIncrease";
+  final String _setDifferenceColumnName = "weightDifference";
+
+  //cardio table and column
+  final String _cardioSetTableName = "CardioTrainingSet";
+  final String _cardioSetIdColumnName = "id";
+  final String _cardioSetWorkoutIdColumnName = "workout_id";
+  final String _cardioSetNumberColumnName = "number";
+  final String _cardioSetTimeColumnName = "time";
+  final String _cardioSetIntensityColumnName = "intensity";
+  final String _cardioSetPercentageChangeColumnName = "percentageIncrease";
+  final String _cardioSetDifferenceColumnName = "difference";
 
   // Private constructor
 
@@ -119,18 +129,33 @@ class DatabaseService {
               """);
 
           db.execute("""
-         CREATE TABLE $_setTableName (
+         CREATE TABLE $_strengthSetTableName (
               $_setIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
               $_setWorkoutIdColumnName INTEGER NOT NULL,
               $_setNumberColumnName INTEGER NOT NULL,
               $_setWeightColumnName REAL NOT NULL,
               $_setRepsColumnName INTEGER NOT NULL,
-              $_setPercentageIncreaseColumnName  REAL NOT NULL,
-              $_setWeightDifferenceColumnName  REAL NOT NULL,
+              $_setPercentageChangeColumnName  REAL NOT NULL,
+              $_setDifferenceColumnName  REAL NOT NULL,
 
 
 
 
+
+              FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+            );
+
+              """);
+
+          db.execute("""
+         CREATE TABLE $_cardioSetTableName (
+              $_cardioSetIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+              $_cardioSetWorkoutIdColumnName INTEGER NOT NULL,
+              $_cardioSetNumberColumnName INTEGER NOT NULL,
+              $_cardioSetIntensityColumnName REAL NOT NULL,
+              $_cardioSetTimeColumnName INTEGER NOT NULL,
+              $_cardioSetPercentageChangeColumnName  REAL NOT NULL,
+              $_cardioSetDifferenceColumnName  REAL NOT NULL,
 
               FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
             );
@@ -280,8 +305,8 @@ class DatabaseService {
     final db = await database; // Get the database instance
     final String query = '''
     SELECT * 
-    FROM $_setTableName
-    JOIN $_workoutTableName ON $_workoutTableName.$_workoutIdColumnName = $_setTableName.$_setWorkoutIdColumnName
+    FROM $_strengthSetTableName
+    JOIN $_workoutTableName ON $_workoutTableName.$_workoutIdColumnName = $_strengthSetTableName.$_setWorkoutIdColumnName
     JOIN $_exerciseTableName ON $_exerciseTableName.$_exerciseIdColumnName = $_workoutTableName.$_workoutExerciseIdColumnName
     JOIN $_routineTableName ON $_routineTableName.$_routineIdColumnName = $_exerciseTableName.$_exerciseRoutineIdColumnName
     WHERE $_routineTableName.$_routineIdColumnName = ? 
@@ -343,37 +368,68 @@ class DatabaseService {
     final db = await database;
 
     final String query = '''
-    SELECT 
-      Workout.$_workoutIdColumnName AS id,
-      Workout.$_workoutDateColumnName AS date,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight1,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps1,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight2,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps2,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight3,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps3,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight4,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps4,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight5,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps5,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight6,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps6,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight7,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps7,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight8,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps8,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight9,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps9,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight10,
-      MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps10
-    FROM $_workoutTableName AS Workout
-    JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
-    JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
-    JOIN $_setTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
-    WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
-    GROUP BY Workout.$_workoutIdColumnName
-    ORDER BY Workout.$_workoutDateColumnName ASC;
-  ''';
+  SELECT 
+    Workout.$_workoutIdColumnName AS id,
+    Workout.$_workoutDateColumnName AS date,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight1,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps1,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff1,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange1,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight2,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps2,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff2,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 2 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange2,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight3,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps3,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff3,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 3 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange3,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight4,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps4,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff4,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 4 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange4,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight5,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps5,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff5,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 5 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange5,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight6,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps6,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff6,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 6 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange6,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight7,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps7,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff7,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 7 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange7,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight8,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps8,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff8,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 8 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange8,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight9,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps9,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff9,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange9,
+
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight10,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps10,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS weightDiff10,
+    MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setPercentageChangeColumnName END) AS percentageChange10
+
+  FROM $_workoutTableName AS Workout
+  JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+  JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+  JOIN $_strengthSetTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
+  WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
+  GROUP BY Workout.$_workoutIdColumnName, Workout.$_workoutDateColumnName
+  ORDER BY Workout.$_workoutDateColumnName ASC;
+''';
 
     try {
       final List<Map<String, dynamic>> data =
@@ -395,24 +451,48 @@ class DatabaseService {
             element["weight7"] ?? 0.0,
             element["weight8"] ?? 0.0,
             element["weight9"] ?? 0.0,
-            element["weight10"] ?? 0.0
+            element["weight10"] ?? 0.0,
           ],
           "reps": [
-            element["reps1"] ?? 0,
-            element["reps2"] ?? 0,
-            element["reps3"] ?? 0,
-            element["reps4"] ?? 0,
-            element["reps5"] ?? 0,
-            element["reps6"] ?? 0,
-            element["reps7"] ?? 0,
-            element["reps8"] ?? 0,
-            element["reps9"] ?? 0,
-            element["reps10"] ?? 0
+            element["reps1"] ?? 0.0,
+            element["reps2"] ?? 0.0,
+            element["reps3"] ?? 0.0,
+            element["reps4"] ?? 0.0,
+            element["reps5"] ?? 0.0,
+            element["reps6"] ?? 0.0,
+            element["reps7"] ?? 0.0,
+            element["reps8"] ?? 0.0,
+            element["reps9"] ?? 0.0,
+            element["reps10"] ?? 0.0,
           ],
+          "weightDifferences": [
+            element["weightDiff1"] ?? 0.0,
+            element["weightDiff2"] ?? 0.0,
+            element["weightDiff3"] ?? 0.0,
+            element["weightDiff4"] ?? 0.0,
+            element["weightDiff5"] ?? 0.0,
+            element["weightDiff6"] ?? 0.0,
+            element["weightDiff7"] ?? 0.0,
+            element["weightDiff8"] ?? 0.0,
+            element["weightDiff9"] ?? 0.0,
+            element["weightDiff10"] ?? 0.0,
+          ],
+          "percentageChanges": [
+            element["percentageChange1"] ?? 0.0,
+            element["percentageChange2"] ?? 0.0,
+            element["percentageChange3"] ?? 0.0,
+            element["percentageChange4"] ?? 0.0,
+            element["percentageChange5"] ?? 0.0,
+            element["percentageChange6"] ?? 0.0,
+            element["percentageChange7"] ?? 0.0,
+            element["percentageChange8"] ?? 0.0,
+            element["percentageChange9"] ?? 0.0,
+            element["percentageChange10"] ?? 0.0,
+          ]
         });
       }
+      print(workouts);
 
-      // print(workouts);
       return workouts;
     } catch (e) {
       throw Exception("Error retrieving workout sets: $e");
@@ -424,8 +504,8 @@ class DatabaseService {
     final db = await database; // Get the database instance
     final String query = '''
     SELECT * 
-    FROM $_setTableName
-    JOIN $_workoutTableName ON $_workoutTableName.$_workoutIdColumnName = $_setTableName.$_setWorkoutIdColumnName
+    FROM $_strengthSetTableName
+    JOIN $_workoutTableName ON $_workoutTableName.$_workoutIdColumnName = $_strengthSetTableName.$_setWorkoutIdColumnName
     JOIN $_exerciseTableName ON $_exerciseTableName.$_exerciseIdColumnName = $_workoutTableName.$_workoutExerciseIdColumnName
     JOIN $_routineTableName ON $_routineTableName.$_routineIdColumnName = $_exerciseTableName.$_exerciseRoutineIdColumnName
     WHERE $_routineTableName.$_routineIdColumnName = ? 
@@ -541,14 +621,14 @@ class DatabaseService {
     try {
       final db = await database;
       await db.insert(
-        _setTableName,
+        _strengthSetTableName,
         {
           _setWorkoutIdColumnName: workoutId,
           _setNumberColumnName: setNumber,
           _setRepsColumnName: reps,
           _setWeightColumnName: weight,
-          _setWeightDifferenceColumnName: difference,
-          _setPercentageIncreaseColumnName: percentageChange
+          _setDifferenceColumnName: difference,
+          _setPercentageChangeColumnName: percentageChange
         },
       );
       print('set added successfully');
@@ -588,7 +668,7 @@ class DatabaseService {
     FROM $_workoutTableName AS Workout
     JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
     JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
-    JOIN $_setTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
+    JOIN $_strengthSetTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
     WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
     GROUP BY Workout.$_workoutIdColumnName
     ORDER BY Workout.$_workoutDateColumnName DESC
@@ -636,6 +716,218 @@ class DatabaseService {
       print("---------- $workout");
 
       return workout; // Wrap in a list to match return type
+    } catch (e) {
+      throw Exception("Error retrieving workout sets: $e");
+    }
+  }
+
+  Future<void> addCardioSet(int workoutId, int setNumber, int time,
+      int intensity, double difference, double percentageChange) async {
+    try {
+      final db = await database;
+      await db.insert(
+        _cardioSetTableName,
+        {
+          _cardioSetWorkoutIdColumnName: workoutId,
+          _cardioSetNumberColumnName: setNumber,
+          _cardioSetIntensityColumnName: intensity,
+          _cardioSetTimeColumnName: time,
+          _cardioSetDifferenceColumnName: difference,
+          _cardioSetPercentageChangeColumnName: percentageChange
+        },
+      );
+      print('set added successfully');
+    } catch (e) {
+      throw Exception("Error adding set: $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCardioSetsOfAllWorkouts(
+      int routineId, int exerciseId) async {
+    final db = await database;
+
+    final String query = '''
+  SELECT 
+    Workout.$_workoutIdColumnName AS id,
+    Workout.$_workoutDateColumnName AS date,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 1 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time1,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 1 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference1,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 1 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange1,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 1 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity1,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 2 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time2,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 2 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference2,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 2 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange2,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 2 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity2,
+    
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 3 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time3,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 3 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference3,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 3 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange3,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 3 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity3,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 4 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time4,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 4 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference4,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 4 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange4,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 4 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity4,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 5 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time5,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 5 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference5,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 5 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange5,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 5 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity5,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 6 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time6,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 6 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference6,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 6 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange6,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 6 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity6,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 7 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time7,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 7 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference7,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 7 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange7,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 7 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity7,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 8 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time8,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 8 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference8,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 8 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange8,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 8 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity8,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 9 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time9,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 9 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference9,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 9 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange9,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 9 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity9,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time10,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetDifferenceColumnName END) AS difference10,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetPercentageChangeColumnName END) AS percentageChange10,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity10
+    
+  FROM $_workoutTableName AS Workout
+  JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+  JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+  JOIN $_cardioSetTableName AS CardioTrainingSet ON CardioTrainingSet.$_cardioSetWorkoutIdColumnName = Workout.$_workoutIdColumnName
+  WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
+  GROUP BY Workout.$_workoutIdColumnName, Workout.$_workoutDateColumnName
+  ORDER BY Workout.$_workoutDateColumnName ASC;
+  ''';
+
+    try {
+      final List<Map<String, dynamic>> data =
+          await db.rawQuery(query, [routineId, exerciseId]);
+
+      List<Map<String, dynamic>> workouts = [];
+
+      for (var element in data) {
+        workouts.add({
+          "id": element["id"],
+          "date": element["date"],
+          "times": [for (int i = 1; i <= 10; i++) element["time$i"] ?? 0.0],
+          "differences": [
+            for (int i = 1; i <= 10; i++) element["difference$i"] ?? 0.0
+          ],
+          "percentageChanges": [
+            for (int i = 1; i <= 10; i++) element["percentageChange$i"] ?? 0.0
+          ],
+          "intensities": [
+            for (int i = 1; i <= 10; i++) element["intensity$i"] ?? 0.0
+          ]
+        });
+      }
+      print(workouts);
+
+      return workouts;
+    } catch (e) {
+      throw Exception("Error retrieving cardio workout sets: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>> getCardioSetsOfSecondToLastWorkout(
+      int routineId, int exerciseId) async {
+    final db = await database;
+
+    final String query = '''
+  SELECT 
+    Workout.$_workoutIdColumnName AS id,
+    Workout.$_workoutDateColumnName AS date,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 1 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time1,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 1 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity1,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 2 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time2,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 2 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity2,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 3 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time3,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 3 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity3,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 4 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time4,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 4 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity4,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 5 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time5,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 5 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity5,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 6 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time6,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 6 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity6,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 7 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time7,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 7 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity7,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 8 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time8,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 8 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity8,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 9 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time9,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 9 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity9,
+
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time10,
+    MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity10
+  FROM $_workoutTableName AS Workout
+  JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+  JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+  JOIN $_cardioSetTableName AS CardioTrainingSet ON CardioTrainingSet.$_cardioSetWorkoutIdColumnName = Workout.$_workoutIdColumnName
+  WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
+  GROUP BY Workout.$_workoutIdColumnName
+  ORDER BY Workout.$_workoutDateColumnName DESC
+  LIMIT 1
+  OFFSET 1;
+  ''';
+
+    try {
+      final List<Map<String, dynamic>> data =
+          await db.rawQuery(query, [routineId, exerciseId]);
+
+      if (data.isEmpty) {
+        return {}; // Return an empty map if there's no second-to-last workout
+      }
+
+      final Map<String, dynamic> workout = {
+        "id": data.first["id"],
+        "date": data.first["date"],
+        "times": [
+          data.first["time1"] ?? 0,
+          data.first["time2"] ?? 0,
+          data.first["time3"] ?? 0,
+          data.first["time4"] ?? 0,
+          data.first["time5"] ?? 0,
+          data.first["time6"] ?? 0,
+          data.first["time7"] ?? 0,
+          data.first["time8"] ?? 0,
+          data.first["time9"] ?? 0,
+          data.first["time10"] ?? 0
+        ],
+        "intensities": [
+          data.first["intensity1"] ?? 0.0,
+          data.first["intensity2"] ?? 0.0,
+          data.first["intensity3"] ?? 0.0,
+          data.first["intensity4"] ?? 0.0,
+          data.first["intensity5"] ?? 0.0,
+          data.first["intensity6"] ?? 0.0,
+          data.first["intensity7"] ?? 0.0,
+          data.first["intensity8"] ?? 0.0,
+          data.first["intensity9"] ?? 0.0,
+          data.first["intensity10"] ?? 0.0
+        ]
+      };
+
+      print("---------- $workout");
+
+      return workout; // Return the workout with times and intensities
     } catch (e) {
       throw Exception("Error retrieving workout sets: $e");
     }

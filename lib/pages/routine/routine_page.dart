@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/pages/progress/cardio_progress/cardio_progress_page.dart';
 import 'package:workout_tracker/pages/routine/routine_tile.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:workout_tracker/database/models/routine_model.dart';
 import 'package:workout_tracker/pages/routine/add_routine.dart';
 import 'package:workout_tracker/pages/exercise/exercise_page.dart';
 
-class Routine extends StatefulWidget {
-  const Routine({super.key});
+class RoutinePage extends StatefulWidget {
+  const RoutinePage({super.key});
 
   @override
-  State<Routine> createState() => _RoutineState();
+  State<RoutinePage> createState() => _RoutinePageState();
 }
 
-class _RoutineState extends State<Routine> {
+class _RoutinePageState extends State<RoutinePage> {
   final DatabaseService databaseService = DatabaseService.instance;
 
   Widget _routinesList() {
@@ -78,7 +79,15 @@ class _RoutineState extends State<Routine> {
                   setState(() {});
                 });
               },
-              icon: Icon(Icons.add_box))
+              icon: Icon(Icons.add_box)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CardioProgressPage()));
+              },
+              icon: Icon(Icons.question_mark))
         ],
       ),
       body:

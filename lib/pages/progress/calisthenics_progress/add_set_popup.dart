@@ -89,7 +89,11 @@ class _AddSetPopupState extends State<AddSetPopup> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('ADD A SET TO YOUR WORKOUT'),
+              title: Center(
+                  child: Text(
+                'ADD A SET !',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              )),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,

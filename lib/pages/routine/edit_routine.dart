@@ -200,11 +200,15 @@ class _EditRoutineState extends State<EditRoutine> {
               ),
               const SizedBox(height: 24),
 
-              // Submit Button
               ElevatedButton(
-                onPressed: () {
-                  // Handle submission
-                },
+                onPressed: (_selectedImage == "" ||
+                        titleController.text == "" ||
+                        descriptionController.text == "")
+                    ? null
+                    : () {
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -213,7 +217,7 @@ class _EditRoutineState extends State<EditRoutine> {
                   ),
                 ),
                 child: Text(
-                  "Confirm",
+                  "Confirm Changes",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: scaffoldColor,

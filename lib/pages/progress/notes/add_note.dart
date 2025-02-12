@@ -13,20 +13,17 @@ class AddNote extends StatefulWidget {
 }
 
 class _AddNoteState extends State<AddNote> {
-
   final Color scaffoldColor = const Color.fromRGBO(255, 250, 236, 1);
   final Color appBarColor = const Color.fromRGBO(87, 142, 126, 1);
   final Color textColor = const Color.fromRGBO(61, 61, 61, 1);
   final Color cardColor = const Color.fromRGBO(245, 236, 213, 1);
 
-
+  final DatabaseService databaseService = DatabaseService.instance;
   final TextEditingController descriptionController = TextEditingController();
 
-  final DatabaseService databaseService = DatabaseService.instance;
-
   // Dropdown variables
-  String selectedValue = "TIPS"; // Default selected value
-  final List<String> dropdownItems = ["CAUTION", "TIPS", "INFO"];
+  String selectedValue = "OTHER"; // Default selected value
+  final List<String> dropdownItems = ["OTHER", "CAUTION", "TIPS", "INFO"];
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +62,7 @@ class _AddNoteState extends State<AddNote> {
                     children: [
                       Expanded(
                           child: Text(
-                        "Select the type of note",
+                        "Type of note",
                         style: TextStyle(fontSize: 16),
                       )),
                       DropdownButton<String>(
@@ -88,7 +85,9 @@ class _AddNoteState extends State<AddNote> {
                             child: Text(
                               item.toString(),
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.blueGrey),
                             ),
                           );
                         }).toList(),
@@ -123,15 +122,41 @@ class _AddNoteState extends State<AddNote> {
               ),
               const SizedBox(height: 24),
 
-              // Submit Button
-              ElevatedButton(
-                onPressed: () {
-                  databaseService.addNote(
-                      widget.exerciseId,selectedValue, descriptionController.text);
-                    Navigator.pop(context);
+              // // Submit Button
+              // ElevatedButton(
+              //   onPressed: () {
+              //     databaseService.addNote(
+              //         widget.exerciseId,selectedValue, descriptionController.text);
+              //       Navigator.pop(context);
 
-                  // Handle submission
-                },
+              //     // Handle submission
+              //   },
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: appBarColor,
+              //     padding: const EdgeInsets.symmetric(vertical: 16),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(16),
+              //     ),
+              //   ),
+              //   child: Text(
+              //     "Add Note",
+              //     style: TextStyle(
+              //       fontWeight: FontWeight.bold,
+              //       color: scaffoldColor,
+              //       fontSize: 16,
+              //     ),
+              //   ),
+              // ),
+
+              ElevatedButton(
+                onPressed: (descriptionController.text == "")
+                    ? null
+                    : () {
+                        databaseService.addNote(widget.exerciseId,
+                            selectedValue, descriptionController.text);
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),

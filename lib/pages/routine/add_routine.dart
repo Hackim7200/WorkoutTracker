@@ -204,15 +204,43 @@ class _AddRoutineState extends State<AddRoutine> {
               const SizedBox(height: 24),
 
               // Submit Button
-              ElevatedButton(
-                onPressed: () {
-                  _databaseService.addRoutine(titleController.text,
-                      descriptionController.text, _selectedImage);
-                  Navigator.pop(context);
-                  setState(() {});
+              // ElevatedButton(
+              //   onPressed: () {
+              //     _databaseService.addRoutine(titleController.text,
+              //         descriptionController.text, _selectedImage);
+              //     Navigator.pop(context);
+              //     setState(() {});
 
-                  // Handle submission
-                },
+              //     // Handle submission
+              //   },
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: appBarColor,
+              //     padding: const EdgeInsets.symmetric(vertical: 16),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(16),
+              //     ),
+              //   ),
+              //   child: Text(
+              //     "Add Routine",
+              //     style: TextStyle(
+              //       fontWeight: FontWeight.bold,
+              //       color: scaffoldColor,
+              //       fontSize: 16,
+              //     ),
+              //   ),
+              // ),
+
+              ElevatedButton(
+                onPressed: (_selectedImage == "" ||
+                        titleController.text == "" ||
+                        descriptionController.text == "")
+                    ? null
+                    : () {
+                        _databaseService.addRoutine(titleController.text,
+                            descriptionController.text, _selectedImage);
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),
