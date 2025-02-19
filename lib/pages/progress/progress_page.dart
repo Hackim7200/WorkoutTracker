@@ -1,42 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
+import 'package:workout_tracker/pages/progress/main_stats.dart';
+import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/calisthenics/add_set_calisthenics.dart';
 
-import 'package:workout_tracker/pages/progress/weight_progress/add_set_popup.dart';
+import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/cardio/cardio_progress/add_set_cardio.dart';
+
+import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/add_set_weightlifting.dart';
 import 'package:workout_tracker/pages/progress/goalBar/goals_bar.dart';
-import 'package:workout_tracker/pages/progress/data_table.dart/prorgess_table.dart';
+
 import 'package:workout_tracker/pages/progress/notes/add_note.dart';
 import 'package:workout_tracker/pages/progress/notes/notes.dart';
 import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
 
 import 'package:intl/intl.dart';
 
-class WeightProgressPage extends StatefulWidget {
+class ProgressPage extends StatefulWidget {
   final String currentImage;
   final int exerciseId;
   final int routineId;
-  final double monthlyProgressGoals;
-  final int minRep;
-  final int maxRep;
   final String risk;
-  final int maxSet;
+  final int numberOfSets;
+  final String type;
 
-  const WeightProgressPage({
+  const ProgressPage({
     super.key,
     required this.currentImage,
     required this.exerciseId,
     required this.routineId,
-    required this.monthlyProgressGoals,
-    required this.minRep,
-    required this.maxRep,
     required this.risk,
-    required this.maxSet,
+    required this.numberOfSets,
+    required this.type,
   });
 
   @override
-  State<WeightProgressPage> createState() => _WeightProgressPageState();
+  State<ProgressPage> createState() => _ProgressPageState();
 }
 
-class _WeightProgressPageState extends State<WeightProgressPage> {
+class _ProgressPageState extends State<ProgressPage> {
   final Color scaffoldColor = Color.fromRGBO(255, 250, 236, 1);
   final Color appBarColor = Color.fromRGBO(87, 142, 126, 1);
   final Color floatingIconColor = Color.fromRGBO(87, 142, 126, 1);
@@ -108,29 +108,6 @@ class _WeightProgressPageState extends State<WeightProgressPage> {
         actions: [
           IconButton(
               onPressed: () {
-                // Your input date
-                String date = "08 02 2025";
-
-                // Parse the date using DateFormat
-                DateFormat inputFormat = DateFormat("dd MM yyyy");
-                DateTime parsedDate = inputFormat.parse(date);
-
-                // Format it to ISO 8601 format (YYYY-MM-DD)
-                String isoDate = DateFormat("yyyy-MM-dd").format(parsedDate);
-
-                databaseService.addWorkoutWithDate(widget.exerciseId, isoDate);
-              },
-              icon: Icon(Icons.abc)),
-          IconButton(
-              onPressed: () {
-                int setNumber = 3;
-                int workoutId = 9;
-
-                databaseService.addSet(workoutId, setNumber, 20, 20, 5.3, 15.0);
-              },
-              icon: Icon(Icons.access_alarm)),
-          IconButton(
-              onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return EditExercise(selectedImage: widget.currentImage);
                 }));
@@ -148,7 +125,6 @@ class _WeightProgressPageState extends State<WeightProgressPage> {
         ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        // makes sure that the body is not rendered until the workoutData is loaded
         future: workoutData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -184,20 +160,16 @@ class _WeightProgressPageState extends State<WeightProgressPage> {
                     padding: const EdgeInsets.all(10),
                     child: Divider(),
                   ),
-                  GoalsBar(
-                    minRep: widget.minRep,
-                    maxRep: widget.maxRep,
-                    progressOverload: widget.monthlyProgressGoals,
+                  MainStats(
+                    type: widget.type,
                     risk: widget.risk,
+                    numberOfSets: widget.numberOfSets,
+                    minRep: 10,
+                    maxRep: 20,
+                    progressOverload: 100,
+                    routineId: widget.routineId,
+                    exerciseId: widget.exerciseId,
                   ),
-                  workoutId != -1
-                      ? ProgressTable(
-                          setNumber: widget.maxSet,
-                          routineId: widget.routineId,
-                          exerciseId: widget.exerciseId,
-                        )
-                      : Text(
-                          "No set data exists please try adding a workout set :)"),
                   SizedBox(height: 100),
                 ],
               ),
@@ -218,17 +190,36 @@ class _WeightProgressPageState extends State<WeightProgressPage> {
           int lastSetAdded = data["lastSetAdded"];
           int workoutId = data["workoutId"];
 
-          return widget.maxSet > lastSetAdded
-              ? AddSetPopup(
-                  workoutId: workoutId,
-                  totalSet: widget.maxSet,
-                  routineId: widget.routineId,
-                  exerciseId: widget.exerciseId,
-                  onAddSet: refreshWorkoutData,
-                )
-              : SizedBox();
+          if (widget.numberOfSets > lastSetAdded) {
+            if (widget.type == "weightlifting") {
+              return AddSetWeightlifting(
+                workoutId: workoutId,
+                totalSet: widget.numberOfSets,
+                routineId: widget.routineId,
+                exerciseId: widget.exerciseId,
+                onAddSet: refreshWorkoutData,
+              );
+            } else if (widget.type == "calisthenics") {
+              return AddSetCalisthenics(
+                workoutId: workoutId,
+                totalSet: widget.numberOfSets,
+                routineId: widget.routineId,
+                exerciseId: widget.exerciseId,
+                onAddSet: refreshWorkoutData,
+              );
+            } else if (widget.type == "cardio") {
+              return AddSetCardio(
+                workoutId: workoutId,
+                totalSet: widget.numberOfSets,
+                routineId: widget.routineId,
+                exerciseId: widget.exerciseId,
+                onAddSet: refreshWorkoutData,
+              );
+            }
+          }
+          return SizedBox();
         },
-      ),
+      ), // <-- Closing bracket for FutureBuilder
     );
-  }
+  } // <-- Closing bracket for build method
 }

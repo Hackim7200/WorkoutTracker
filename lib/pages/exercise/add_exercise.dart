@@ -95,7 +95,7 @@ class _AddExerciseState extends State<AddExercise> {
   }
 
   // Dropdown variables
-  int selectedSets = 4; // Default selected value
+  int selectedSets = 1; // Default selected value
   final List<int> setOptions = [1, 2, 3, 4, 5];
 
   String selectedRisk = "MED"; // Default selected value
@@ -116,8 +116,9 @@ class _AddExerciseState extends State<AddExercise> {
     5.5
   ];
 
-  int selectedMinRep = 1;
-  int selectedMaxRep = 1;
+  String selectedType = "weightlifting";
+  final List<String> typeOptions = ["weightlifting", "cardio", "calisthenics"];
+
   final List<int> minRepOptions = [
     1,
     2,
@@ -294,52 +295,6 @@ class _AddExerciseState extends State<AddExercise> {
                       elevation: 4,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-
-                        // padding: const EdgeInsets.symmetric(
-                        // horizontal: 20.0, vertical: 8.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                                child: Text("Sets",
-                                    style: TextStyle(fontSize: 16))),
-                            DropdownButton<int>(
-                              value: selectedSets,
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: appBarColor,
-                                size: 28,
-                              ),
-                              style: TextStyle(color: textColor, fontSize: 16),
-                              underline: SizedBox.shrink(),
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedSets = newValue!;
-                                });
-                              },
-                              items: setOptions.map((int item) {
-                                return DropdownMenuItem<int>(
-                                  value: item,
-                                  child: Text(item.toString()),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Card(
-                      color: cardColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-
-                        // padding: const EdgeInsets.symmetric(
-                        // horizontal: 20.0, vertical: 8.0),
                         child: Row(
                           children: [
                             Expanded(
@@ -371,11 +326,50 @@ class _AddExerciseState extends State<AddExercise> {
                       ),
                     ),
                   ),
+                  Expanded(
+                    child: Card(
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: Text("Sets",
+                                    style: TextStyle(fontSize: 16))),
+                            DropdownButton<int>(
+                              value: selectedSets,
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: appBarColor,
+                                size: 28,
+                              ),
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              underline: SizedBox.shrink(),
+                              onChanged: (int? newValue) {
+                                setState(() {
+                                  selectedSets = newValue!;
+                                });
+                              },
+                              items: setOptions.map((int item) {
+                                return DropdownMenuItem<int>(
+                                  value: item,
+                                  child: Text(item.toString()),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -390,13 +384,10 @@ class _AddExerciseState extends State<AddExercise> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                "Min reps",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            DropdownButton<int>(
-                              value: selectedMinRep,
+                                child: Text("Exercise Type",
+                                    style: TextStyle(fontSize: 16))),
+                            DropdownButton<String>(
+                              value: selectedType,
                               icon: Icon(
                                 Icons.arrow_drop_down,
                                 color: appBarColor,
@@ -404,72 +395,15 @@ class _AddExerciseState extends State<AddExercise> {
                               ),
                               style: TextStyle(color: textColor, fontSize: 16),
                               underline: SizedBox.shrink(),
-                              onChanged: (int? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    selectedMinRep = newValue;
-                                    // Ensure `selectedMaxRep` is >= `selectedMinRep`
-                                    if (selectedMaxRep < selectedMinRep) {
-                                      selectedMaxRep = selectedMinRep;
-                                    }
-                                  });
-                                }
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedType = newValue!;
+                                });
                               },
-                              items: minRepOptions.map((int item) {
-                                return DropdownMenuItem<int>(
+                              items: typeOptions.map((String item) {
+                                return DropdownMenuItem<String>(
                                   value: item,
-                                  child: Text(item.toString()),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Card(
-                      color: cardColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "Max reps",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            DropdownButton<int>(
-                              value: selectedMaxRep,
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: appBarColor,
-                                size: 28,
-                              ),
-                              style: TextStyle(color: textColor, fontSize: 16),
-                              underline: SizedBox.shrink(),
-                              onChanged: (int? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    selectedMaxRep = newValue;
-                                    // Ensure `selectedMinRep` is <= `selectedMaxRep`
-                                    if (selectedMinRep > selectedMaxRep) {
-                                      selectedMinRep = selectedMaxRep;
-                                    }
-                                  });
-                                }
-                              },
-                              items: maxRepOptions
-                                  .where((item) => item >= selectedMinRep)
-                                  .map((int item) {
-                                return DropdownMenuItem<int>(
-                                  value: item,
-                                  child: Text(item.toString()),
+                                  child: Text(item),
                                 );
                               }).toList(),
                             ),
@@ -480,8 +414,6 @@ class _AddExerciseState extends State<AddExercise> {
                   ),
                 ],
               ),
-
-              // Dropdown for sets
 
               const SizedBox(height: 16),
 
@@ -502,7 +434,7 @@ class _AddExerciseState extends State<AddExercise> {
                             child: TextField(
                               controller: _controller,
                               decoration: InputDecoration(
-                                labelText: "Muscles",
+                                labelText: "Muscles Worked",
                                 labelStyle: TextStyle(color: textColor),
                                 border: InputBorder.none,
                               ),
@@ -521,58 +453,8 @@ class _AddExerciseState extends State<AddExercise> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Card(
-                      color: cardColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-
-                        // padding: const EdgeInsets.symmetric(
-                        // horizontal: 20.0, vertical: 8.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                                child: Text("Monthly Progress (KG)",
-                                    style: TextStyle(fontSize: 15))),
-                            DropdownButton<double>(
-                              value: selectedProgress,
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: appBarColor,
-                                size: 28,
-                              ),
-                              style: TextStyle(color: textColor, fontSize: 16),
-                              underline: SizedBox.shrink(),
-                              onChanged: (double? newValue) {
-                                setState(() {
-                                  selectedProgress = newValue!;
-                                });
-                              },
-                              items: progressOptions.map((double item) {
-                                return DropdownMenuItem<double>(
-                                  value: item,
-                                  child: Text(item.toString()),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
-
-              // Center(
-              //   child: Text(
-              //     _keywords.join(", "),
-              //     style: TextStyle(fontSize: 20),
-              //   ),
-              // ),
 
               const SizedBox(height: 24),
 
@@ -604,12 +486,13 @@ class _AddExerciseState extends State<AddExercise> {
                             widget.routineId,
                             titleController.text,
                             _selectedImage,
-                            selectedMaxRep,
-                            selectedMinRep,
                             selectedSets,
-                            selectedProgress,
                             selectedRisk,
-                            _keywords.join(", "));
+                            _keywords.join(", "),
+                            selectedType,
+                            0.0,
+                            0,
+                            0);
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,

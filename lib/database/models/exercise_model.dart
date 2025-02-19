@@ -5,9 +5,10 @@ class ExerciseModel {
   final String image;
   final String muscleGroups;
   final String risk;
+  final int sets;
+  final String type;
   final int minRep;
   final int maxRep;
-  final int sets;
   final double monthlyProgressGoals;
 
   ExerciseModel({
@@ -21,5 +22,6 @@ class ExerciseModel {
     required this.monthlyProgressGoals,
     required this.risk,
     required this.muscleGroups,
+    required this.type,
   });
 }

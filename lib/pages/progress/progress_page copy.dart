@@ -1,42 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 
-import 'package:workout_tracker/pages/progress/weight_progress/add_set_popup.dart';
+import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/add_set_weightlifting.dart';
 import 'package:workout_tracker/pages/progress/goalBar/goals_bar.dart';
-import 'package:workout_tracker/pages/progress/data_table.dart/prorgess_table.dart';
+import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/prorgess_table_weightlifting.dart';
 import 'package:workout_tracker/pages/progress/notes/add_note.dart';
 import 'package:workout_tracker/pages/progress/notes/notes.dart';
 import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
 
 import 'package:intl/intl.dart';
 
-class WeightProgressPage extends StatefulWidget {
+class ProgressPage extends StatefulWidget {
   final String currentImage;
   final int exerciseId;
   final int routineId;
-  final double monthlyProgressGoals;
-  final int minRep;
-  final int maxRep;
+  // final double monthlyProgressGoals;
+  // final int minRep;
+  // final int maxRep;
   final String risk;
   final int maxSet;
+  final String type;
 
-  const WeightProgressPage({
+  const ProgressPage({
     super.key,
     required this.currentImage,
     required this.exerciseId,
     required this.routineId,
-    required this.monthlyProgressGoals,
-    required this.minRep,
-    required this.maxRep,
+    // required this.monthlyProgressGoals,
+    // required this.minRep,
+    // required this.maxRep,
     required this.risk,
     required this.maxSet,
+    required this.type,
   });
 
   @override
-  State<WeightProgressPage> createState() => _WeightProgressPageState();
+  State<ProgressPage> createState() => _ProgressPageState();
 }
 
-class _WeightProgressPageState extends State<WeightProgressPage> {
+class _ProgressPageState extends State<ProgressPage> {
   final Color scaffoldColor = Color.fromRGBO(255, 250, 236, 1);
   final Color appBarColor = Color.fromRGBO(87, 142, 126, 1);
   final Color floatingIconColor = Color.fromRGBO(87, 142, 126, 1);
@@ -185,13 +187,15 @@ class _WeightProgressPageState extends State<WeightProgressPage> {
                     child: Divider(),
                   ),
                   GoalsBar(
-                    minRep: widget.minRep,
-                    maxRep: widget.maxRep,
-                    progressOverload: widget.monthlyProgressGoals,
+                    minRep: 0,
+                    maxRep: 0,
+                    progressOverload: 0,
                     risk: widget.risk,
+                    type: widget.type,
+                    numberOfSets: 12,
                   ),
                   workoutId != -1
-                      ? ProgressTable(
+                      ? ProgressTableWeightlifting(
                           setNumber: widget.maxSet,
                           routineId: widget.routineId,
                           exerciseId: widget.exerciseId,
@@ -219,7 +223,7 @@ class _WeightProgressPageState extends State<WeightProgressPage> {
           int workoutId = data["workoutId"];
 
           return widget.maxSet > lastSetAdded
-              ? AddSetPopup(
+              ? AddSetWeightlifting(
                   workoutId: workoutId,
                   totalSet: widget.maxSet,
                   routineId: widget.routineId,

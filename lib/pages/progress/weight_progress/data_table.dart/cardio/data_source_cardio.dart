@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:intl/intl.dart';
 
-class DataSource extends DataTableSource {
+class DataSourceCardio extends DataTableSource {
   List<Map<String, dynamic>> workouts = [];
   final int setNumber;
   final int routineId;
   final int exerciseId;
 
-  DataSource(this.setNumber, this.routineId, this.exerciseId) {
+  DataSourceCardio(this.setNumber, this.routineId, this.exerciseId) {
     loadData();
   }
 

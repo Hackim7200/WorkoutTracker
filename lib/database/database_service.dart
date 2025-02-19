@@ -23,11 +23,14 @@ class DatabaseService {
   final String _exerciseTitleColumnName = "title";
   final String _exerciseImageColumnName = "image";
   final String _exerciseMusclesGroupsColumnName = "musclesGroups";
+  final String _exerciseSetsColumnName = "sets";
   final String _exerciseRiskColumnName = "risk";
+
+  final String _exerciseMonthlyProgressGoalsColumnName = "monthlyProgressGoals";
   final String _exerciseMinRepColumnName = "min_rep";
   final String _exerciseMaxRepColumnName = "max_rep";
-  final String _exerciseSetsColumnName = "sets";
-  final String _exerciseMonthlyProgressGoalsColumnName = "monthlyProgressGoals";
+
+  final String _exerciseTypeColumnName = "exercise_type";
 
   //Note table and column
   final String _noteTableName = "Note";
@@ -101,10 +104,13 @@ class DatabaseService {
               $_exerciseImageColumnName TEXT NOT NULL,
               $_exerciseMusclesGroupsColumnName TEXT NOT NULL,
               $_exerciseRiskColumnName TEXT NOT NULL,
-              $_exerciseMinRepColumnName INTEGER NOT NULL, 
-              $_exerciseMaxRepColumnName INTEGER NOT NULL,
               $_exerciseSetsColumnName INTEGER NOT NULL,
+              $_exerciseTypeColumnName TEXT NOT NULL,
+
               $_exerciseMonthlyProgressGoalsColumnName REAL NOT NULL,
+              $_exerciseMinRepColumnName INTEGER  NOT NULL, 
+              $_exerciseMaxRepColumnName INTEGER  NOT NULL,
+
               FOREIGN KEY ($_exerciseRoutineIdColumnName) REFERENCES $_routineTableName($_routineIdColumnName)
             );
           """);
@@ -219,9 +225,10 @@ class DatabaseService {
               image: e[_exerciseImageColumnName] as String,
               muscleGroups: e[_exerciseMusclesGroupsColumnName] as String,
               risk: e[_exerciseRiskColumnName] as String,
+              sets: e[_exerciseSetsColumnName] as int,
+              type: e[_exerciseTypeColumnName] as String,
               minRep: e[_exerciseMinRepColumnName] as int,
               maxRep: e[_exerciseMaxRepColumnName] as int,
-              sets: e[_exerciseSetsColumnName] as int,
               monthlyProgressGoals:
                   e[_exerciseMonthlyProgressGoalsColumnName] as double))
           .toList();
@@ -542,29 +549,32 @@ class DatabaseService {
   }
 
   Future<void> addExercise(
-      int routineId,
-      String title,
-      String image,
-      int minRep,
-      int maxRep,
-      int sets,
-      double monthlyProgressGoals,
-      String risk,
-      String muscleGroups) async {
+    int routineId,
+    String title,
+    String image,
+    int sets,
+    String risk,
+    String muscleGroups,
+    String type,
+    double monthlyProgressGoals,
+    int minRep,
+    int maxRep,
+  ) async {
     try {
       final db = await database;
       await db.insert(
         _exerciseTableName,
         {
           _exerciseRoutineIdColumnName: routineId,
-          _exerciseTitleColumnName: title,
           _exerciseImageColumnName: image,
+          _exerciseTitleColumnName: title,
+          _exerciseRiskColumnName: risk,
+          _exerciseSetsColumnName: sets,
+          _exerciseMusclesGroupsColumnName: muscleGroups,
+          _exerciseTypeColumnName: type,
+          _exerciseMonthlyProgressGoalsColumnName: monthlyProgressGoals,
           _exerciseMinRepColumnName: minRep,
           _exerciseMaxRepColumnName: maxRep,
-          _exerciseSetsColumnName: sets,
-          _exerciseMonthlyProgressGoalsColumnName: monthlyProgressGoals,
-          _exerciseRiskColumnName: risk,
-          _exerciseMusclesGroupsColumnName: muscleGroups,
         },
       );
       print('Exercise added successfully');

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class AddSetPopup extends StatefulWidget {
+class AddSetCalisthenics extends StatefulWidget {
   final int routineId, exerciseId, workoutId, totalSet;
   final VoidCallback onAddSet;
 
-  const AddSetPopup({
+  const AddSetCalisthenics({
     super.key,
     required this.workoutId,
     required this.totalSet,
@@ -15,10 +16,10 @@ class AddSetPopup extends StatefulWidget {
   });
 
   @override
-  State<AddSetPopup> createState() => _AddSetPopupState();
+  State<AddSetCalisthenics> createState() => _AddSetCalisthenicsState();
 }
 
-class _AddSetPopupState extends State<AddSetPopup> {
+class _AddSetCalisthenicsState extends State<AddSetCalisthenics> {
   final DatabaseService databaseService = DatabaseService.instance;
   final TextEditingController repController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -83,7 +84,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
     return FloatingActionButton(
       backgroundColor: floatingIconColor,
       foregroundColor: textColor,
-      child: const Icon(Icons.receipt_long_rounded),
+      child: const FaIcon(FontAwesomeIcons.personWalking),
       onPressed: () {
         showDialog(
           context: context,
@@ -91,7 +92,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
             return AlertDialog(
               title: Center(
                   child: Text(
-                'ADD A SET !',
+                'ADD A CALISTHENICS SET !',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               )),
               content: Column(
@@ -99,19 +100,19 @@ class _AddSetPopupState extends State<AddSetPopup> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    controller: weightController,
+                    controller: repController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: "Weight",
+                      labelText: "Reps",
                       labelStyle: TextStyle(color: textColor),
                     ),
                     style: TextStyle(color: textColor),
                   ),
                   TextField(
-                    controller: repController,
+                    controller: weightController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: "Reps",
+                      labelText: "Weight",
                       labelStyle: TextStyle(color: textColor),
                     ),
                     style: TextStyle(color: textColor),

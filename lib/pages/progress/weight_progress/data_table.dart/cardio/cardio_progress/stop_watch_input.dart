@@ -22,11 +22,11 @@ class StopWatchInput extends StatefulWidget {
 
 class _StopWatchInputState extends State<StopWatchInput> {
   final DatabaseService databaseService = DatabaseService.instance;
-
   final TextEditingController intensityController = TextEditingController();
   late Stopwatch stopwatch;
   late Timer t;
 
+// ********************************** timer related stuff ****************************************************
   void handleStartStop() {
     if (stopwatch.isRunning) {
       stopwatch.stop();
@@ -49,6 +49,10 @@ class _StopWatchInputState extends State<StopWatchInput> {
     var milli = stopwatch.elapsed.inMilliseconds;
     return milli;
   }
+
+  // ********************************** the main logic ****************************************************
+
+  // ********************************** the rest **********************************************************
 
   @override
   void initState() {
@@ -77,7 +81,7 @@ class _StopWatchInputState extends State<StopWatchInput> {
     return AlertDialog(
       title: Center(
         child: Text(
-          'ADD A SET !',
+          'ADD A CARDIO SET !',
           style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
         ),
       ),

@@ -6,6 +6,8 @@ class GoalsBar extends StatelessWidget {
   final int maxRep;
   final double progressOverload;
   final String risk;
+  final String type;
+  final int numberOfSets;
 
   const GoalsBar({
     super.key,
@@ -13,6 +15,8 @@ class GoalsBar extends StatelessWidget {
     required this.maxRep,
     required this.progressOverload,
     required this.risk,
+    required this.type,
+    required this.numberOfSets,
   });
 
   @override
@@ -35,6 +39,8 @@ class GoalsBar extends StatelessWidget {
         riskColor = cardColor; // Fallback color
     }
 
+
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView(
@@ -47,6 +53,11 @@ class GoalsBar extends StatelessWidget {
           childAspectRatio: 2.5, // Adjusts item shape
         ),
         children: [
+           Goal(
+            backgroundColour: riskColor, 
+            title: "Injury Risk",
+            value: risk,
+          ),
           Goal(
             backgroundColour: cardColor,
             title: "Min Reps",
@@ -62,10 +73,16 @@ class GoalsBar extends StatelessWidget {
             title: "Monthly Progress",
             value: "${progressOverload.toString()} kg",
           ),
+         
           Goal(
-            backgroundColour: riskColor, // ✅ Changes color based on risk
-            title: "Injury Risk",
-            value: risk,
+            backgroundColour: cardColor,
+            title: "type",
+            value: type,
+          ),
+          Goal(
+            backgroundColour: cardColor,
+            title: "sets",
+            value: "${numberOfSets}",
           ),
         ],
       ),
