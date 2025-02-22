@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/pages/progress/goalBar/goal.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/calisthenics/prorgess_table_calisthenics.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/cardio/prorgess_table_cardio.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/prorgess_table_weightlifting.dart';
+import 'package:workout_tracker/pages/progress/data_table.dart/calisthenics/prorgess_table_calisthenics.dart';
+import 'package:workout_tracker/pages/progress/data_table.dart/cardio/prorgess_table_cardio.dart';
+import 'package:workout_tracker/pages/progress/data_table.dart/weightlifting/prorgess_table_weightlifting.dart';
 
 class MainStats extends StatelessWidget {
   final String type, risk;
   final int minRep, maxRep, numberOfSets, routineId, exerciseId;
-  final double progressOverload;
+  final double monthlyProgress;
 
   const MainStats({
     super.key,
@@ -16,7 +16,7 @@ class MainStats extends StatelessWidget {
     required this.minRep,
     required this.maxRep,
     required this.numberOfSets,
-    required this.progressOverload,
+    required this.monthlyProgress,
     required this.routineId,
     required this.exerciseId,
   });
@@ -63,7 +63,7 @@ class MainStats extends StatelessWidget {
                 Goal(
                   backgroundColour: cardColor,
                   title: "Monthly Progress",
-                  value: "${progressOverload.toString()} kg",
+                  value: "${monthlyProgress.toString()} kg",
                 ),
                 Goal(
                   backgroundColour: cardColor,
@@ -73,7 +73,7 @@ class MainStats extends StatelessWidget {
                 Goal(
                   backgroundColour: cardColor,
                   title: "sets",
-                  value: "${numberOfSets}",
+                  value: "$numberOfSets",
                 ),
                 Goal(
                   backgroundColour: cardColor,
@@ -118,7 +118,7 @@ class MainStats extends StatelessWidget {
                 Goal(
                   backgroundColour: cardColor,
                   title: "Monthly Progress",
-                  value: "${progressOverload.toString()} kg",
+                  value: "${monthlyProgress.toString()} kg",
                 ),
                 Goal(
                   backgroundColour: cardColor,
@@ -128,7 +128,7 @@ class MainStats extends StatelessWidget {
                 Goal(
                   backgroundColour: cardColor,
                   title: "sets",
-                  value: "${numberOfSets}",
+                  value: "$numberOfSets",
                 ),
               ],
             ),
@@ -163,7 +163,7 @@ class MainStats extends StatelessWidget {
                 Goal(
                   backgroundColour: cardColor,
                   title: "Monthly Progress",
-                  value: "${progressOverload.toString()} kg",
+                  value: "${monthlyProgress.toString()} kg",
                 ),
                 Goal(
                   backgroundColour: cardColor,
@@ -173,7 +173,7 @@ class MainStats extends StatelessWidget {
                 Goal(
                   backgroundColour: cardColor,
                   title: "sets",
-                  value: "${numberOfSets}",
+                  value: "$numberOfSets",
                 ),
               ],
             ),

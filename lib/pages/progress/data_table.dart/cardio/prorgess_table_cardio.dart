@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/data_source_weightlifting.dart';
+import 'package:workout_tracker/pages/progress/data_table.dart/cardio/data_source_cardio.dart';
+
 
 class ProgressTableCardio extends StatelessWidget {
   final int setNumber;
@@ -14,8 +15,8 @@ class ProgressTableCardio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DataSourceWeightlifting dataSource =
-        DataSourceWeightlifting(setNumber, routineId, exerciseId);
+    final DataSourceCardio dataSource =
+        DataSourceCardio(setNumber, routineId, exerciseId);
     final int numberOfRowsPerPage = 9;
     final TextStyle fontStyle = TextStyle(
       color: Colors.grey,
@@ -25,8 +26,8 @@ class ProgressTableCardio extends StatelessWidget {
     List<DataColumn> columns = [];
     columns.add(DataColumn(label: Text("Date", style: fontStyle)));
     for (int i = 0; i < setNumber; i++) {
-      columns.add(DataColumn(label: Text("| Weight", style: fontStyle)));
-      columns.add(DataColumn(label: Text("Rep", style: fontStyle)));
+      columns.add(DataColumn(label: Text("| intensity", style: fontStyle)));
+      columns.add(DataColumn(label: Text("time", style: fontStyle)));
     }
 
     return FutureBuilder(
@@ -59,10 +60,12 @@ class ProgressTableCardio extends StatelessWidget {
             ? (dataSource.rowCount - numberOfRowsPerPage)
             : 0;
 
+        final double columnSpacing = setNumber == 1 ? 56.0 : 10.0;
+
         return PaginatedDataTable(
           rowsPerPage: numberOfRowsPerPage,
           source: dataSource,
-          // columnSpacing: 10,
+          columnSpacing: columnSpacing,
           dataRowMaxHeight: 30,
           dataRowMinHeight: 30,
           initialFirstRowIndex: initialRowIndex,

@@ -82,7 +82,7 @@ class GoalsBar extends StatelessWidget {
           Goal(
             backgroundColour: cardColor,
             title: "sets",
-            value: "${numberOfSets}",
+            value: "$numberOfSets",
           ),
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/cardio/cardio_progress/stop_watch_input.dart';
+import 'package:workout_tracker/pages/progress/add_set_popup/cardio_progress/stop_watch_input.dart';
 
 class AddSetCardio extends StatefulWidget {
   final VoidCallback onAddSet;
@@ -19,7 +19,8 @@ class AddSetCardio extends StatefulWidget {
 }
 
 class _AddSetCardioState extends State<AddSetCardio> {
-  TextEditingController textEditingController = TextEditingController();
+
+
 
   @override
   Widget build(BuildContext context) {

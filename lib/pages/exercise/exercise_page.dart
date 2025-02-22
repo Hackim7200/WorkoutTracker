@@ -56,9 +56,9 @@ class _ExercisePageState extends State<ExercisePage> {
                                     currentImage: exercise.image,
                                     exerciseId: exercise.id,
                                     routineId: widget.routineId,
-                                    // monthlyProgressGoals:exercise.monthlyProgressGoals,
-                                    // minRep: exercise.minRep, // Add appropriate value
-                                    // maxRep: exercise.maxRep, // Add appropriate value
+                                    monthlyProgress:exercise.monthlyProgressGoals,
+                                    minRep: exercise.minRep, // Add appropriate value
+                                    maxRep: exercise.maxRep, // Add appropriate value
                                     type: exercise.type,
                                     risk: exercise.risk,
                                     numberOfSets: exercise.sets, //

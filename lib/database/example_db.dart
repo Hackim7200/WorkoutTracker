@@ -1,9 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:workout_tracker/database/models/exercise_model.dart';
-import 'package:workout_tracker/database/models/note_model.dart';
-import 'package:workout_tracker/database/models/routine_model.dart';
-import 'package:workout_tracker/database/models/set_model.dart';
 
 class DatabaseService {
   static Database? _db;

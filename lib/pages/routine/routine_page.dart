@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/pages/routine/add_routine_2.dart';
 import 'package:workout_tracker/pages/routine/routine_tile.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:workout_tracker/database/models/routine_model.dart';
-import 'package:workout_tracker/pages/routine/add_routine.dart';
+
 import 'package:workout_tracker/pages/exercise/exercise_page.dart';
 
 class RoutinePage extends StatefulWidget {
@@ -71,22 +72,14 @@ class _RoutinePageState extends State<RoutinePage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AddRoutine(
+                        builder: (context) => AddRoutine2(
                               selectedImage: '',
                             ))).then((_) {
-                  // refreshes the page when returning
+
                   setState(() {});
                 });
               },
               icon: Icon(Icons.add_box)),
-          IconButton(
-              onPressed: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => CardioProgressPage()));
-              },
-              icon: Icon(Icons.question_mark))
         ],
       ),
       body:

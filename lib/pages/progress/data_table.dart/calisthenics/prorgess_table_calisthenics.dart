@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/data_source_weightlifting.dart';
 
-class ProgressTableWeightlifting extends StatelessWidget {
+import 'package:workout_tracker/pages/progress/data_table.dart/calisthenics/data_source_calisthenics.dart';
+
+class ProgressTableCalisthenics extends StatelessWidget {
   final int setNumber;
   final int routineId;
   final int exerciseId;
-  const ProgressTableWeightlifting({
+  const ProgressTableCalisthenics({
     super.key,
     required this.setNumber,
     required this.routineId,
@@ -14,8 +15,8 @@ class ProgressTableWeightlifting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DataSourceWeightlifting dataSource =
-        DataSourceWeightlifting(setNumber, routineId, exerciseId);
+    final DataSourceCalisthenics dataSource =
+        DataSourceCalisthenics(setNumber, routineId, exerciseId);
     final int numberOfRowsPerPage = 9;
     final TextStyle fontStyle = TextStyle(
       color: Colors.grey,
@@ -58,11 +59,12 @@ class ProgressTableWeightlifting extends StatelessWidget {
         final int initialRowIndex = (dataSource.rowCount > numberOfRowsPerPage)
             ? (dataSource.rowCount - numberOfRowsPerPage)
             : 0;
+        final double columnSpacing = setNumber == 1 ? 56.0 : 10.0;
 
         return PaginatedDataTable(
           rowsPerPage: numberOfRowsPerPage,
           source: dataSource,
-          // columnSpacing: 10,
+          columnSpacing: columnSpacing,
           dataRowMaxHeight: 30,
           dataRowMinHeight: 30,
           initialFirstRowIndex: initialRowIndex,

@@ -161,9 +161,10 @@ class DatabaseService {
               $_cardioSetIntensityColumnName REAL NOT NULL,
               $_cardioSetTimeColumnName INTEGER NOT NULL,
               $_cardioSetPercentageChangeColumnName  REAL NOT NULL,
-              $_cardioSetDifferenceColumnName  REAL NOT NULL,
+              $_cardioSetDifferenceColumnName  INTEGER NOT NULL,
+              FOREIGN KEY ($_cardioSetWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
 
-              FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+
             );
 
               """);
@@ -508,43 +509,35 @@ class DatabaseService {
 
   Future<int> getLastSetNumber(
       int routineId, int exerciseId, int workoutId) async {
-    final db = await database; // Get the database instance
+    final db = await database;
+
     final String query = '''
-    SELECT * 
+    SELECT MAX($_setNumberColumnName) AS lastSetNumber
     FROM $_strengthSetTableName
-    JOIN $_workoutTableName ON $_workoutTableName.$_workoutIdColumnName = $_strengthSetTableName.$_setWorkoutIdColumnName
-    JOIN $_exerciseTableName ON $_exerciseTableName.$_exerciseIdColumnName = $_workoutTableName.$_workoutExerciseIdColumnName
-    JOIN $_routineTableName ON $_routineTableName.$_routineIdColumnName = $_exerciseTableName.$_exerciseRoutineIdColumnName
+    JOIN $_workoutTableName 
+      ON $_workoutTableName.$_workoutIdColumnName = $_strengthSetTableName.$_setWorkoutIdColumnName
+    JOIN $_exerciseTableName 
+      ON $_exerciseTableName.$_exerciseIdColumnName = $_workoutTableName.$_workoutExerciseIdColumnName
+    JOIN $_routineTableName 
+      ON $_routineTableName.$_routineIdColumnName = $_exerciseTableName.$_exerciseRoutineIdColumnName
     WHERE $_routineTableName.$_routineIdColumnName = ? 
       AND $_exerciseTableName.$_exerciseIdColumnName = ? 
       AND $_workoutTableName.$_workoutIdColumnName = ?;
   ''';
 
     try {
-      // Query the database with the provided routineId, exerciseId, and workoutId
       final data = await db.rawQuery(query, [routineId, exerciseId, workoutId]);
 
-      if (data.isNotEmpty) {
-        print("Data exists");
-        return data.last["number"] as int;
+      if (data.isNotEmpty && data.first['lastSetNumber'] != null) {
+        print("Last strength set number found: ${data.first['lastSetNumber']}");
+        return data.first['lastSetNumber'] as int;
       } else {
-        print("Data is empty");
+        print("No strength sets found. Returning 0.");
         return 0;
       }
-
-      // List<WorkoutSet> sets = data
-      //     .map((e) => WorkoutSet(
-      //           id: e[_setIdColumnName] as int,
-      //           setNumber: e[_setNumberColumnName] as int,
-      //           weight: e[_setWeightColumnName] as double,
-      //           reps: e[_setRepsColumnName] as int,
-      //         ))
-      //     .toList();
-
-      // print(sets);
     } catch (e) {
-      // Handle any exceptions that may occur
-      throw Exception("Error retrieving workout sets: $e");
+      print("Error retrieving last strength set number: $e");
+      return 0;
     }
   }
 
@@ -647,12 +640,12 @@ class DatabaseService {
     }
   }
 
-  Future<Map<String, dynamic>> getSetsOfSecondToLastWorkout(
+  Future<Map<String, dynamic>?> getSetsOfSecondToLastWorkout(
       int routineId, int exerciseId) async {
     final db = await database;
 
     final String query = '''
-    SELECT 
+   SELECT 
       Workout.$_workoutIdColumnName AS id,
       Workout.$_workoutDateColumnName AS date,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 1 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight1,
@@ -675,15 +668,17 @@ class DatabaseService {
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 9 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps9,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setWeightColumnName END) AS weight10,
       MAX(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = 10 THEN StrengthTrainingSet.$_setRepsColumnName END) AS reps10
-    FROM $_workoutTableName AS Workout
-    JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
-    JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
-    JOIN $_strengthSetTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
-    WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
-    GROUP BY Workout.$_workoutIdColumnName
-    ORDER BY Workout.$_workoutDateColumnName DESC
-    LIMIT 1
-    OFFSET 1;
+FROM $_workoutTableName AS Workout
+JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+JOIN $_strengthSetTableName AS StrengthTrainingSet ON StrengthTrainingSet.$_setWorkoutIdColumnName = Workout.$_workoutIdColumnName
+WHERE Routine.$_routineIdColumnName = ? 
+  AND Exercise.$_exerciseIdColumnName = ?
+  AND Workout.$_workoutDateColumnName < CURRENT_DATE
+GROUP BY Workout.$_workoutIdColumnName
+ORDER BY Workout.$_workoutDateColumnName DESC
+LIMIT 1;
+
   ''';
 
     try {
@@ -691,7 +686,7 @@ class DatabaseService {
           await db.rawQuery(query, [routineId, exerciseId]);
 
       if (data.isEmpty) {
-        return {}; // Return an empty map if there's no second-to-last workout
+        return null; // Return an empty map if there's no second-to-last workout
       }
 
       final Map<String, dynamic> workout = {
@@ -732,7 +727,7 @@ class DatabaseService {
   }
 
   Future<void> addCardioSet(int workoutId, int setNumber, int time,
-      int intensity, double difference, double percentageChange) async {
+      double intensity, int difference, double percentageChange) async {
     try {
       final db = await database;
       await db.insert(
@@ -940,6 +935,63 @@ class DatabaseService {
       return workout; // Return the workout with times and intensities
     } catch (e) {
       throw Exception("Error retrieving workout sets: $e");
+    }
+  }
+
+  Future<int> getLastSetNumberCardio(
+      int routineId, int exerciseId, int workoutId) async {
+    final db = await database;
+
+    final String query = '''
+    SELECT MAX($_cardioSetNumberColumnName) AS lastSetNumber
+    FROM $_cardioSetTableName
+    JOIN $_workoutTableName 
+      ON $_workoutTableName.$_workoutIdColumnName = $_cardioSetTableName.$_cardioSetWorkoutIdColumnName
+    JOIN $_exerciseTableName 
+      ON $_exerciseTableName.$_exerciseIdColumnName = $_workoutTableName.$_workoutExerciseIdColumnName
+    JOIN $_routineTableName 
+      ON $_routineTableName.$_routineIdColumnName = $_exerciseTableName.$_exerciseRoutineIdColumnName
+    WHERE $_routineTableName.$_routineIdColumnName = ? 
+      AND $_exerciseTableName.$_exerciseIdColumnName = ? 
+      AND $_workoutTableName.$_workoutIdColumnName = ?;
+  ''';
+
+    try {
+      final data = await db.rawQuery(query, [routineId, exerciseId, workoutId]);
+
+      if (data.isNotEmpty && data.first['lastSetNumber'] != null) {
+        print("Last set number found: ${data.first['lastSetNumber']}");
+        return data.first['lastSetNumber'] as int;
+      } else {
+        print("No sets found. Returning 0.");
+        return 0;
+      }
+    } catch (e) {
+      print("Error retrieving last set number: $e");
+      return 0;
+    }
+  }
+
+  Future<void> checkCardioSetsForWorkout(int workoutId) async {
+    try {
+      final db = await database;
+
+      final List<Map<String, dynamic>> sets = await db.query(
+        _cardioSetTableName,
+        where: '$_cardioSetWorkoutIdColumnName = ?',
+        whereArgs: [workoutId],
+      );
+
+      if (sets.isEmpty) {
+        print('No cardio sets found for workoutId: $workoutId');
+      } else {
+        print('Cardio sets for workoutId $workoutId:');
+        for (var set in sets) {
+          print(set);
+        }
+      }
+    } catch (e) {
+      print('Error checking cardio sets: $e');
     }
   }
 }

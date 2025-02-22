@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:intl/intl.dart';
 
-class DataSourceWeightlifting extends DataTableSource {
+class DataSourceCardio extends DataTableSource {
   List<Map<String, dynamic>> workouts = [];
   final int setNumber;
   final int routineId;
   final int exerciseId;
 
-  DataSourceWeightlifting(this.setNumber, this.routineId, this.exerciseId) {
+  DataSourceCardio(this.setNumber, this.routineId, this.exerciseId) {
     loadData();
   }
 
   Future<void> loadData() async {
     final DatabaseService databaseService = DatabaseService.instance;
     workouts =
-        await databaseService.getSetsOfAllWorkouts(routineId, exerciseId);
+        await databaseService.getCardioSetsOfAllWorkouts(routineId, exerciseId);
     notifyListeners();
   }
 
@@ -56,8 +56,8 @@ class DataSourceWeightlifting extends DataTableSource {
       return Color(0xFFE57373); // Light Red
     } else if (percent >= 23 && percent < 25) {
       return Color(0xFFD32F2F); // Medium Red
-    } else if (percent >= 25 && percent <= 100) {
-      return Color(0xFFB71C1C); // Deep Red for max danger
+    } else if (percent >= 25) {
+      return Color(0xFFB71C1C); // Deep Red for extreme danger, including >100%
     }
     return Colors.transparent; // Default fallback
   }
@@ -66,8 +66,8 @@ class DataSourceWeightlifting extends DataTableSource {
   DataRow? getRow(int index) {
     if (index >= workouts.length) return null;
 
-    List<dynamic> weights = workouts[index]["weights"] ?? [];
-    List<dynamic> reps = workouts[index]["reps"] ?? [];
+    List<dynamic> intensities = workouts[index]["intensities"] ?? [];
+    List<dynamic> time = workouts[index]["times"] ?? [];
     List<dynamic> percentageChange = workouts[index]["percentageChanges"] ?? [];
 
     List<DataCell> cells = [];
@@ -77,23 +77,27 @@ class DataSourceWeightlifting extends DataTableSource {
 
     // Dynamically add sets based on setNumber
     for (int i = 0; i < setNumber; i++) {
-      String weightText = (i < weights.length) ? weights[i].toString() : "-";
-      String repsText = (i < reps.length) ? reps[i].toString() : "-";
+      String intensitiesText =
+          (i < intensities.length) ? intensities[i].toString() : "-";
+      String timeText = (i < time.length) ? time[i].toString() : "-";
 
       double percentChange =
           (i < percentageChange.length) ? percentageChange[i] : 0.0;
 
-      if (weightText == "0" || weightText == "0.0") {
-        weightText = "-";
-        repsText = "-";
+      if (intensitiesText == "0" || intensitiesText == "0.0") {
+        intensitiesText = "-";
       }
+      if (timeText == "0" || timeText == "0.0") {
+        timeText = "-";
+      }
+
       Color newColour = getColorFromPercentage(percentChange);
 
+      cells.add(DataCell(Center(child: Text(intensitiesText))));
       cells.add(
-        DataCell(Container(
-            color: newColour, child: Center(child: Text(weightText)))),
+        DataCell(
+            Container(color: newColour, child: Center(child: Text(timeText)))),
       );
-      cells.add(DataCell(Center(child: Text(repsText))));
     }
 
     return DataRow(cells: cells);

@@ -85,15 +85,18 @@ class DataSourceCalisthenics extends DataTableSource {
 
       if (weightText == "0" || weightText == "0.0") {
         weightText = "-";
+      }
+      if (repsText == "0" || repsText == "0.0") {
         repsText = "-";
       }
+
       Color newColour = getColorFromPercentage(percentChange);
 
+      cells.add(DataCell(Center(child: Text(weightText))));
       cells.add(
-        DataCell(Container(
-            color: newColour, child: Center(child: Text(weightText)))),
+        DataCell(
+            Container(color: newColour, child: Center(child: Text(repsText)))),
       );
-      cells.add(DataCell(Center(child: Text(repsText))));
     }
 
     return DataRow(cells: cells);

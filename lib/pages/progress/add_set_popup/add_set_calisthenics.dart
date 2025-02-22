@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class AddSetPopup extends StatefulWidget {
+class AddSetCalisthenics extends StatefulWidget {
   final int routineId, exerciseId, workoutId, totalSet;
   final VoidCallback onAddSet;
 
-  const AddSetPopup({
+  const AddSetCalisthenics({
     super.key,
     required this.workoutId,
     required this.totalSet,
@@ -15,10 +16,10 @@ class AddSetPopup extends StatefulWidget {
   });
 
   @override
-  State<AddSetPopup> createState() => _AddSetPopupState();
+  State<AddSetCalisthenics> createState() => _AddSetCalisthenicsState();
 }
 
-class _AddSetPopupState extends State<AddSetPopup> {
+class _AddSetCalisthenicsState extends State<AddSetCalisthenics> {
   final DatabaseService databaseService = DatabaseService.instance;
   final TextEditingController repController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -33,7 +34,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
 
   /// Fetch previous workout data asynchronously
   void fetchPrevWorkoutData() async {
-    Map<String, dynamic> data = await databaseService
+    Map<String, dynamic>? data = await databaseService
         .getSetsOfSecondToLastWorkout(widget.routineId, widget.exerciseId);
 
     setState(() {
@@ -45,29 +46,30 @@ class _AddSetPopupState extends State<AddSetPopup> {
   }
 
   void _submitAndResetAllVariables() async {
-    int reps = int.tryParse(repController.text) ?? 0;
+    int rep = int.tryParse(repController.text) ?? 0;
     double weight = double.tryParse(weightController.text) ?? 0.0;
 
     int lastSetNumber = await databaseService.getLastSetNumber(
         widget.routineId, widget.exerciseId, widget.workoutId);
 
-    var weights = prevWorkoutData?["weights"];
-    if (weights != null && weights.isNotEmpty && lastSetNumber > 0) {
-      double previousWeight = weights[lastSetNumber];
-      double change = weight - previousWeight;
+    var reps = prevWorkoutData?["reps"];
+    if (reps != null && reps.isNotEmpty && lastSetNumber >= 0) {
+      int previousRep = reps[lastSetNumber];
+      double change = rep - previousRep.toDouble();
       double percentageChange =
-          previousWeight != 0 ? (change / previousWeight) * 100 : 0;
+          previousRep != 0 ? (change / previousRep) * 100 : 0;
 
-      print("Previous Weight: $previousWeight");
+      print("Previous Weight: $previousRep");
       print("Current Weight: $weight");
       print("Change: $change");
       print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
+      await databaseService.addSet(widget.workoutId, lastSetNumber + 1, rep,
+          weight, change, percentageChange);
     } else {
       print("No previous workout data available.");
+      await databaseService.addSet(
+          widget.workoutId, lastSetNumber + 1, rep, weight, 0, 0);
     }
-
-    await databaseService.addSet(
-        widget.workoutId, lastSetNumber + 1, reps, weight, 5.3, 99.9);
 
     repController.clear();
     weightController.clear();
@@ -83,7 +85,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
     return FloatingActionButton(
       backgroundColor: floatingIconColor,
       foregroundColor: textColor,
-      child: const Icon(Icons.receipt_long_rounded),
+      child: const FaIcon(FontAwesomeIcons.personWalking),
       onPressed: () {
         showDialog(
           context: context,
@@ -91,7 +93,7 @@ class _AddSetPopupState extends State<AddSetPopup> {
             return AlertDialog(
               title: Center(
                   child: Text(
-                'ADD A SET !',
+                'ADD A CALISTHENICS SET !',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               )),
               content: Column(

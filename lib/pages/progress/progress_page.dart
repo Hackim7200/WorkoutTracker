@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:workout_tracker/pages/progress/main_stats.dart';
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/calisthenics/add_set_calisthenics.dart';
+import 'package:workout_tracker/pages/progress/add_set_popup/add_set_calisthenics.dart';
 
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/cardio/cardio_progress/add_set_cardio.dart';
+import 'package:workout_tracker/pages/progress/add_set_popup/cardio_progress/add_set_cardio.dart';
 
-import 'package:workout_tracker/pages/progress/weight_progress/data_table.dart/weightlifting/add_set_weightlifting.dart';
+import 'package:workout_tracker/pages/progress/add_set_popup/add_set_weightlifting.dart';
 import 'package:workout_tracker/pages/progress/goalBar/goals_bar.dart';
 
 import 'package:workout_tracker/pages/progress/notes/add_note.dart';
@@ -21,6 +21,8 @@ class ProgressPage extends StatefulWidget {
   final String risk;
   final int numberOfSets;
   final String type;
+  final double monthlyProgress;
+  final int minRep, maxRep;
 
   const ProgressPage({
     super.key,
@@ -30,6 +32,9 @@ class ProgressPage extends StatefulWidget {
     required this.risk,
     required this.numberOfSets,
     required this.type,
+    required this.monthlyProgress,
+    required this.minRep,
+    required this.maxRep,
   });
 
   @override
@@ -61,8 +66,8 @@ class _ProgressPageState extends State<ProgressPage> {
         widget.routineId, widget.exerciseId);
 
     int lastWorkoutId = lastWorkout["id"];
-    int lastSetNumber = await databaseService.getLastSetNumber(
-        widget.routineId, widget.exerciseId, lastWorkoutId);
+    // int lastSetNumber = await databaseService.getLastSetNumber(
+    // widget.routineId, widget.exerciseId, lastWorkoutId);
 
     String nowWorkoutDate = DateFormat("dd MMM yy").format(DateTime.now());
     //
@@ -76,13 +81,13 @@ class _ProgressPageState extends State<ProgressPage> {
       await databaseService.addWorkout(widget.exerciseId);
       lastWorkout = await databaseService.getLastWorkout(
           widget.routineId, widget.exerciseId);
-      lastSetNumber = await databaseService.getLastSetNumber(
-          widget.routineId, widget.exerciseId, lastWorkout["id"]);
+      // lastSetNumber = await databaseService.getLastSetNumber(
+      // widget.routineId, widget.exerciseId, lastWorkout["id"]);
     }
 
     return {
       "workoutId": lastWorkout["id"],
-      "lastSetAdded": lastSetNumber,
+      // "lastSetAdded": lastSetNumber,
       "lastDate": lastWorkoutDate,
       "currentDate": nowWorkoutDate,
     };
@@ -92,6 +97,25 @@ class _ProgressPageState extends State<ProgressPage> {
     setState(() {
       workoutData = initialiseVariables();
     });
+  }
+
+  Future<Map<String, dynamic>> testFunction() async {
+    // Map<String, dynamic> data =
+    //     await databaseService.getCardioSetsOfSecondToLastWorkout(
+    //         widget.routineId, widget.exerciseId);
+    // print("second to last workout ${data}");
+    // databaseService.addWorkoutWithDate(
+    //     widget.exerciseId, "2025-02-18 21:25:05");
+    // databaseService.addCardioSet(3, 2, 100, 100, 100, 100);
+    Map<String, dynamic> lastWorkout = await databaseService.getLastWorkout(
+        widget.routineId, widget.exerciseId);
+
+    // databaseService.getCardioSetsOfAllWorkouts(
+    //     widget.routineId, widget.exerciseId);
+
+    print("last workout$lastWorkout");
+
+    return lastWorkout;
   }
 
   @override
@@ -106,6 +130,12 @@ class _ProgressPageState extends State<ProgressPage> {
         ),
         backgroundColor: appBarColor,
         actions: [
+          IconButton(
+            onPressed: () {
+              testFunction();
+            },
+            icon: Icon(Icons.abc),
+          ),
           IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -137,7 +167,7 @@ class _ProgressPageState extends State<ProgressPage> {
 
           final data = snapshot.data!;
           int workoutId = data["workoutId"];
-          int lastSetAdded = data["lastSetAdded"];
+          // int lastSetAdded = data["lastSetAdded"];
           String lastDate = data["lastDate"];
           String currentDate = data["currentDate"];
 
@@ -147,7 +177,7 @@ class _ProgressPageState extends State<ProgressPage> {
               child: Column(
                 children: [
                   Text(
-                      "id: $workoutId    Now: $currentDate     Last: $lastDate     Last Set: $lastSetAdded"),
+                      "wrkt_id: $workoutId    Now: $currentDate   Last: $lastDate"),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: Divider(),
@@ -164,9 +194,9 @@ class _ProgressPageState extends State<ProgressPage> {
                     type: widget.type,
                     risk: widget.risk,
                     numberOfSets: widget.numberOfSets,
-                    minRep: 10,
-                    maxRep: 20,
-                    progressOverload: 100,
+                    minRep: widget.minRep,
+                    maxRep: widget.maxRep,
+                    monthlyProgress: widget.monthlyProgress,
                     routineId: widget.routineId,
                     exerciseId: widget.exerciseId,
                   ),
@@ -187,7 +217,7 @@ class _ProgressPageState extends State<ProgressPage> {
           }
 
           final data = snapshot.data!;
-          int lastSetAdded = data["lastSetAdded"];
+          // int lastSetAdded = data["lastSetAdded"];
           int workoutId = data["workoutId"];
 
           if (widget.numberOfSets > lastSetAdded) {
@@ -197,6 +227,8 @@ class _ProgressPageState extends State<ProgressPage> {
                 totalSet: widget.numberOfSets,
                 routineId: widget.routineId,
                 exerciseId: widget.exerciseId,
+                minRep: widget.minRep,
+                maxRep: widget.maxRep,
                 onAddSet: refreshWorkoutData,
               );
             } else if (widget.type == "calisthenics") {

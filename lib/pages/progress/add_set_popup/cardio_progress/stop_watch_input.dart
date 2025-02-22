@@ -25,6 +25,22 @@ class _StopWatchInputState extends State<StopWatchInput> {
   final TextEditingController intensityController = TextEditingController();
   late Stopwatch stopwatch;
   late Timer t;
+  int setNumber = -1;
+  Map<String, dynamic>? prevWorkoutData; // Make it nullable
+
+  /// Fetch previous workout data asynchronously
+  void fetchPrevWorkoutData() async {
+    Map<String, dynamic> data =
+        await databaseService.getCardioSetsOfSecondToLastWorkout(
+            widget.routineId, widget.exerciseId);
+
+    setState(() {
+      prevWorkoutData = data;
+    });
+
+    // Debug print the result
+    print("Previous Workout Data: $prevWorkoutData");
+  }
 
 // ********************************** timer related stuff ****************************************************
   void handleStartStop() {
@@ -52,11 +68,48 @@ class _StopWatchInputState extends State<StopWatchInput> {
 
   // ********************************** the main logic ****************************************************
 
+  void _submitAndResetAllVariables() async {
+    int currentTime = returnFormattedTextInteger();
+    double intensity = double.tryParse(intensityController.text) ??
+        0.0; // Parse intensity to int
+
+    int lastSetNumber = await databaseService.getLastSetNumberCardio(
+        widget.routineId, widget.exerciseId, widget.workoutId);
+
+    var times = prevWorkoutData?["times"];
+    if (times != null && times.isNotEmpty && lastSetNumber >= 0) {
+      int previousTime = times[lastSetNumber];
+      int change = currentTime - previousTime;
+      double percentageChange =
+          previousTime != 0 ? (change / previousTime) * 100 : 0;
+
+      print("Previous Weight: $previousTime");
+      print("Current Weight: $currentTime");
+      print("Change: $change");
+      print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
+
+      await databaseService.addCardioSet(widget.workoutId, lastSetNumber + 1,
+          currentTime, intensity, change, percentageChange);
+    } else {
+      print("No previous workout data available.");
+      await databaseService.addCardioSet(
+          widget.workoutId, lastSetNumber + 1, currentTime, intensity, 0, 0);
+    }
+
+    print("time $currentTime intensity $intensity");
+
+    intensityController.clear();
+    stopwatch.stop();
+    stopwatch.reset();
+  }
+
   // ********************************** the rest **********************************************************
 
   @override
   void initState() {
     super.initState();
+    fetchPrevWorkoutData();
+
     stopwatch = Stopwatch();
     t = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       setState(() {});
@@ -82,13 +135,17 @@ class _StopWatchInputState extends State<StopWatchInput> {
       title: Center(
         child: Text(
           'ADD A CARDIO SET !',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text(prevWorkoutData.toString(),
+              style: TextStyle(
+                fontSize: 8,
+              )),
           SizedBox(
               width: 100,
               child: Column(
@@ -103,11 +160,14 @@ class _StopWatchInputState extends State<StopWatchInput> {
                   ),
                 ],
               )),
+          SizedBox(
+            height: 20,
+          ),
           CupertinoButton(
             onPressed: handleStartStop,
             padding: EdgeInsets.zero,
             child: Container(
-              height: 250,
+              height: 200,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -117,7 +177,7 @@ class _StopWatchInputState extends State<StopWatchInput> {
                 ),
               ),
               child: Text(
-                returnFormattedText(),
+                returnFormattedTextInteger().toString(),
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 40,
@@ -146,26 +206,22 @@ class _StopWatchInputState extends State<StopWatchInput> {
               ),
             ),
             ElevatedButton(
-              onPressed: () async {
-                int setNumber = 3;
-                int time = returnFormattedTextInteger();
-                int intensity = int.parse(
-                    intensityController.text); // Parse intensity to int
-                double difference = 10;
-                double percentage = 20;
-
-                await databaseService.addCardioSet(widget.workoutId, setNumber,
-                    time, intensity, difference, percentage);
-
-                print(returnFormattedTextInteger());
-              },
+              onPressed: (intensityController.text.trim() == "" ||
+                      returnFormattedTextInteger() == 0)
+                  ? null
+                  : () {
+                      _submitAndResetAllVariables();
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                      setState(() {});
+                    },
               child: const Text(
                 "Save",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            )
+            ),
           ],
         )
       ],

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:intl/intl.dart';
 
-class DataSourceCardio extends DataTableSource {
+class DataSourceWeightlifting extends DataTableSource {
   List<Map<String, dynamic>> workouts = [];
   final int setNumber;
   final int routineId;
   final int exerciseId;
 
-  DataSourceCardio(this.setNumber, this.routineId, this.exerciseId) {
+  DataSourceWeightlifting(this.setNumber, this.routineId, this.exerciseId) {
     loadData();
   }
 
@@ -85,6 +85,8 @@ class DataSourceCardio extends DataTableSource {
 
       if (weightText == "0" || weightText == "0.0") {
         weightText = "-";
+      }
+      if (repsText == "0" || repsText == "0.0") {
         repsText = "-";
       }
       Color newColour = getColorFromPercentage(percentChange);
