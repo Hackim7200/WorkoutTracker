@@ -23,48 +23,46 @@ class _AddSetCalisthenicsState extends State<AddSetCalisthenics> {
   final DatabaseService databaseService = DatabaseService.instance;
   final TextEditingController repController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   int setNumber = -1;
-  Map<String, dynamic>? prevWorkoutData; // Make it nullable
 
   @override
   void initState() {
     super.initState();
-    fetchPrevWorkoutData();
-  }
-
-  /// Fetch previous workout data asynchronously
-  void fetchPrevWorkoutData() async {
-    Map<String, dynamic>? data = await databaseService
-        .getSetsOfSecondToLastWorkout(widget.routineId, widget.exerciseId);
-
-    setState(() {
-      prevWorkoutData = data;
-    });
-
-    // Debug print the result
-    print("Previous Workout Data: $prevWorkoutData");
   }
 
   void _submitAndResetAllVariables() async {
+    if (mounted) {
+      Navigator.of(context).pop(); // Close the dialog first
+    }
     int rep = int.tryParse(repController.text) ?? 0;
     double weight = double.tryParse(weightController.text) ?? 0.0;
+
+    Map<String, dynamic>? prevWorkoutData = await databaseService
+        .getSetsOfSecondToLastWorkout(widget.routineId, widget.exerciseId);
 
     int lastSetNumber = await databaseService.getLastSetNumber(
         widget.routineId, widget.exerciseId, widget.workoutId);
 
+    // print("last set number ${lastSetNumber}");
+
     var reps = prevWorkoutData?["reps"];
-    if (reps != null && reps.isNotEmpty && lastSetNumber >= 0) {
+
+    // print(prevWorkoutData);
+
+    if (reps != null) {
       int previousRep = reps[lastSetNumber];
-      double change = rep - previousRep.toDouble();
+      int change = rep - previousRep;
       double percentageChange =
           previousRep != 0 ? (change / previousRep) * 100 : 0;
 
-      print("Previous Weight: $previousRep");
-      print("Current Weight: $weight");
+      print("Previous rep: $previousRep");
+      print("Current rep: $rep");
       print("Change: $change");
       print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
       await databaseService.addSet(widget.workoutId, lastSetNumber + 1, rep,
-          weight, change, percentageChange);
+          weight, change.toDouble(), percentageChange);
     } else {
       print("No previous workout data available.");
       await databaseService.addSet(
@@ -73,6 +71,12 @@ class _AddSetCalisthenicsState extends State<AddSetCalisthenics> {
 
     repController.clear();
     weightController.clear();
+
+    // Close the dialog safely, this avoids the error of using controller after disposing
+    if (mounted) {
+      repController.clear();
+      weightController.clear();
+    }
   }
 
   @override
@@ -96,36 +100,55 @@ class _AddSetCalisthenicsState extends State<AddSetCalisthenics> {
                 'ADD A CALISTHENICS SET !',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               )),
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: weightController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Weight",
-                      labelStyle: TextStyle(color: textColor),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: mounted ? weightController : null,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Weight'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter weight';
+                        }
+                        final weight = int.tryParse(value);
+                        if (weight == null || weight > 500) {
+                          return 'Max weight 500 kg';
+                        }
+                        return null;
+                      },
+                      style: TextStyle(color: textColor),
                     ),
-                    style: TextStyle(color: textColor),
-                  ),
-                  TextField(
-                    controller: repController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Reps",
-                      labelStyle: TextStyle(color: textColor),
+                    TextFormField(
+                      controller: mounted ? repController : null,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: textColor),
+                      decoration: const InputDecoration(labelText: 'Reps '),
+                      //   validator: (value) {
+                      //     if (value == null || value.isEmpty) {
+                      //       return 'Please enter reps';
+                      //     }
+                      //     final reps = int.tryParse(value);
+                      //     if (reps == null || reps > widget.maxRep) {
+                      //       return 'Max ${widget.maxRep}';
+                      //     } else if (reps < widget.minRep) {
+                      //       return 'Min ${widget.minRep}';
+                      //     }
+                      //     return null;
+                      //   },
                     ),
-                    style: TextStyle(color: textColor),
-                  ),
-                  if (prevWorkoutData != null) ...[
-                    const SizedBox(height: 10),
-                    Text(
-                      "Previous Workout Data: $prevWorkoutData",
-                      style: TextStyle(color: textColor, fontSize: 12),
-                    ),
+                    // if (prevWorkoutData != null) ...[
+                    //   const SizedBox(height: 10),
+                    //   Text(
+                    //     "Previous Workout Data: $prevWorkoutData",
+                    //     style: TextStyle(color: textColor, fontSize: 12),
+                    //   ),
+                    // ],
                   ],
-                ],
+                ),
               ),
               actions: [
                 CircleAvatar(
@@ -134,7 +157,7 @@ class _AddSetCalisthenicsState extends State<AddSetCalisthenics> {
                     icon: Icon(Icons.save, color: textColor),
                     onPressed: () {
                       _submitAndResetAllVariables();
-                      Navigator.of(context).pop();
+
                       widget.onAddSet();
                     },
                   ),

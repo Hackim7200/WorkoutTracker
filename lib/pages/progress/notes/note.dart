@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/pages/progress/notes/delete_note.dart';
 
 class Note extends StatelessWidget {
   final String type;
   final String message;
-  const Note({super.key, required this.type, required this.message});
+  final int noteId;
+  const Note(
+      {super.key,
+      required this.type,
+      required this.message,
+      required this.noteId});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +58,7 @@ class Note extends StatelessWidget {
                   color: noteText,
                   size: 30,
                 ),
-                SizedBox(width: 5),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     message,
@@ -62,6 +68,8 @@ class Note extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(width: 5),
+                DeleteNote(noteId: noteId, noteText: noteText)
               ],
             ),
           ],

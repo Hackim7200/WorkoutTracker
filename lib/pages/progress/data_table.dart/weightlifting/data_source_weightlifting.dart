@@ -30,8 +30,8 @@ class DataSourceWeightlifting extends DataTableSource {
   }
 
   Color getColorFromPercentage(double percent) {
-    if (percent < 1) {
-      return Colors.transparent;
+    if (percent < 0) {
+      return Color.fromARGB(255, 255, 0, 212); // Soft
     } else if (percent >= 1 && percent < 3) {
       return Color(0xFFC8E6C9); // Soft Pastel Green
     } else if (percent >= 3 && percent < 5) {
@@ -56,7 +56,7 @@ class DataSourceWeightlifting extends DataTableSource {
       return Color(0xFFE57373); // Light Red
     } else if (percent >= 23 && percent < 25) {
       return Color(0xFFD32F2F); // Medium Red
-    } else if (percent >= 25 && percent <= 100) {
+    } else if (percent >= 25) {
       return Color(0xFFB71C1C); // Deep Red for max danger
     }
     return Colors.transparent; // Default fallback

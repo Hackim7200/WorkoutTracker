@@ -14,6 +14,11 @@ class MyApp extends StatelessWidget {
       title: "Workrout App",
       theme: ThemeData(),
       home: RoutinePage(),
+      routes: {
+        // '/': (context) => HomePage(),
+        // '/exercise': (context) => ExercisePage(currentImage: '', routineId: null,),
+        // '/routine': (context) => RoutinePage(),
+      },
     );
   }
 }

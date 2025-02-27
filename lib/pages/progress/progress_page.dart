@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
+import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
 import 'package:workout_tracker/pages/progress/main_stats.dart';
 import 'package:workout_tracker/pages/progress/add_set_popup/add_set_calisthenics.dart';
 
 import 'package:workout_tracker/pages/progress/add_set_popup/cardio_progress/add_set_cardio.dart';
 
 import 'package:workout_tracker/pages/progress/add_set_popup/add_set_weightlifting.dart';
-import 'package:workout_tracker/pages/progress/goalBar/goals_bar.dart';
 
 import 'package:workout_tracker/pages/progress/notes/add_note.dart';
 import 'package:workout_tracker/pages/progress/notes/notes.dart';
-import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
 
 import 'package:intl/intl.dart';
 
@@ -81,13 +80,21 @@ class _ProgressPageState extends State<ProgressPage> {
       await databaseService.addWorkout(widget.exerciseId);
       lastWorkout = await databaseService.getLastWorkout(
           widget.routineId, widget.exerciseId);
-      // lastSetNumber = await databaseService.getLastSetNumber(
-      // widget.routineId, widget.exerciseId, lastWorkout["id"]);
+    }
+
+    int lastSetNumber = 0;
+
+    if (widget.type == "weightlifting" || widget.type == "calisthenics") {
+      lastSetNumber = await databaseService.getLastSetNumber(
+          widget.routineId, widget.exerciseId, lastWorkout["id"]);
+    } else if (widget.type == "cardio") {
+      lastSetNumber = await databaseService.getLastSetNumberCardio(
+          widget.routineId, widget.exerciseId, lastWorkout["id"]);
     }
 
     return {
       "workoutId": lastWorkout["id"],
-      // "lastSetAdded": lastSetNumber,
+      "lastSetAdded": lastSetNumber,
       "lastDate": lastWorkoutDate,
       "currentDate": nowWorkoutDate,
     };
@@ -139,8 +146,14 @@ class _ProgressPageState extends State<ProgressPage> {
           IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return EditExercise(selectedImage: widget.currentImage);
-                }));
+                  return EditExercise(
+                    selectedImage: widget.currentImage,
+                    routineId: widget.routineId,
+                    exerciseId: widget.exerciseId,
+                  );
+                })).then((_) {
+                  setState(() {});
+                });
               },
               icon: Icon(Icons.edit)),
           IconButton(
@@ -217,7 +230,7 @@ class _ProgressPageState extends State<ProgressPage> {
           }
 
           final data = snapshot.data!;
-          // int lastSetAdded = data["lastSetAdded"];
+          int lastSetAdded = data["lastSetAdded"];
           int workoutId = data["workoutId"];
 
           if (widget.numberOfSets > lastSetAdded) {

@@ -25,12 +25,11 @@ class DatabaseService {
   final String _exerciseMusclesGroupsColumnName = "musclesGroups";
   final String _exerciseSetsColumnName = "sets";
   final String _exerciseRiskColumnName = "risk";
+  final String _exerciseTypeColumnName = "exercise_type";
 
   final String _exerciseMonthlyProgressGoalsColumnName = "monthlyProgressGoals";
   final String _exerciseMinRepColumnName = "min_rep";
   final String _exerciseMaxRepColumnName = "max_rep";
-
-  final String _exerciseTypeColumnName = "exercise_type";
 
   //Note table and column
   final String _noteTableName = "Note";
@@ -112,6 +111,7 @@ class DatabaseService {
               $_exerciseMaxRepColumnName INTEGER  NOT NULL,
 
               FOREIGN KEY ($_exerciseRoutineIdColumnName) REFERENCES $_routineTableName($_routineIdColumnName)
+              ON DELETE CASCADE
             );
           """);
 
@@ -122,6 +122,7 @@ class DatabaseService {
               $_noteTypeColumnName TEXT NOT NULL,
               $_noteContentColumnName TEXT NOT NULL,
               FOREIGN KEY ($_noteExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
+              ON DELETE CASCADE
               );
               """);
 
@@ -131,6 +132,7 @@ class DatabaseService {
               $_workoutExerciseIdColumnName INTEGER NOT NULL,
               $_workoutDateColumnName TEXT NOT NULL,
               FOREIGN KEY ($_workoutExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
+              ON DELETE CASCADE
               );
               """);
 
@@ -149,6 +151,7 @@ class DatabaseService {
 
 
               FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+            ON DELETE CASCADE
             );
 
               """);
@@ -163,7 +166,7 @@ class DatabaseService {
               $_cardioSetPercentageChangeColumnName  REAL NOT NULL,
               $_cardioSetDifferenceColumnName  INTEGER NOT NULL,
               FOREIGN KEY ($_cardioSetWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
-
+              ON DELETE CASCADE
 
             );
 
@@ -206,6 +209,21 @@ class DatabaseService {
     return routines;
   }
 
+  // Get a routine by ID from the database
+  Future<Map<String, dynamic>?> getRoutine(int id) async {
+    final db = await database;
+    final result = await db.query(
+      _routineTableName,
+      where: '$_routineIdColumnName = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
   Future<List<ExerciseModel>> getExercises(int routineId) async {
     final db = await database; // Get the database instance
 
@@ -237,6 +255,21 @@ class DatabaseService {
     } catch (e) {
       throw Exception("Error retrieving exercises: $e");
     }
+  }
+
+// Get an exercise by ID from the database
+  Future<Map<String, dynamic>?> getExercise(int id) async {
+    final db = await database;
+    final result = await db.query(
+      _exerciseTableName,
+      where: '$_exerciseIdColumnName = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
   }
 
   Future<List<NoteModel>> getNotes(int routineId, int exerciseId) async {
@@ -845,7 +878,7 @@ LIMIT 1;
     }
   }
 
-  Future<Map<String, dynamic>> getCardioSetsOfSecondToLastWorkout(
+  Future<Map<String, dynamic>?> getCardioSetsOfSecondToLastWorkout(
       int routineId, int exerciseId) async {
     final db = await database;
 
@@ -882,15 +915,17 @@ LIMIT 1;
 
     MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetTimeColumnName END) AS time10,
     MAX(CASE WHEN CardioTrainingSet.$_cardioSetNumberColumnName = 10 THEN CardioTrainingSet.$_cardioSetIntensityColumnName END) AS intensity10
-  FROM $_workoutTableName AS Workout
-  JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
-  JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
-  JOIN $_cardioSetTableName AS CardioTrainingSet ON CardioTrainingSet.$_cardioSetWorkoutIdColumnName = Workout.$_workoutIdColumnName
-  WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
-  GROUP BY Workout.$_workoutIdColumnName
-  ORDER BY Workout.$_workoutDateColumnName DESC
-  LIMIT 1
-  OFFSET 1;
+FROM $_workoutTableName AS Workout
+JOIN $_exerciseTableName AS Exercise ON Exercise.$_exerciseIdColumnName = Workout.$_workoutExerciseIdColumnName
+JOIN $_routineTableName AS Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
+JOIN $_cardioSetTableName AS CardioTrainingSet ON CardioTrainingSet.$_cardioSetWorkoutIdColumnName = Workout.$_workoutIdColumnName
+WHERE Routine.$_routineIdColumnName = ? 
+  AND Exercise.$_exerciseIdColumnName = ?
+  AND Workout.$_workoutDateColumnName < CURRENT_DATE
+GROUP BY Workout.$_workoutIdColumnName
+ORDER BY Workout.$_workoutDateColumnName DESC
+LIMIT 1;
+
   ''';
 
     try {
@@ -898,7 +933,7 @@ LIMIT 1;
           await db.rawQuery(query, [routineId, exerciseId]);
 
       if (data.isEmpty) {
-        return {}; // Return an empty map if there's no second-to-last workout
+        return null; // Return an empty map if there's no second-to-last workout
       }
 
       final Map<String, dynamic> workout = {
@@ -993,5 +1028,89 @@ LIMIT 1;
     } catch (e) {
       print('Error checking cardio sets: $e');
     }
+  }
+
+  Future<int> updateRoutine(
+      int id, String title, String description, String image) async {
+    final db = await database;
+    return await db.update(
+      _routineTableName,
+      {
+        _routineTitleColumnName: title,
+        _routineDescriptionColumnName: description,
+        _routineImageColumnName: image,
+      },
+      where: '$_routineIdColumnName = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> updateExercise({
+    required int id,
+    required int routineId,
+    required String title,
+    required String image,
+    required String musclesGroups,
+    required String risk,
+    required int sets,
+    required String exerciseType,
+    required double monthlyProgressGoals,
+    required int minRep,
+    required int maxRep,
+  }) async {
+    final db = await database;
+    return await db.update(
+      _exerciseTableName,
+      {
+        _exerciseRoutineIdColumnName: routineId,
+        _exerciseTitleColumnName: title,
+        _exerciseImageColumnName: image,
+        _exerciseMusclesGroupsColumnName: musclesGroups,
+        _exerciseRiskColumnName: risk,
+        _exerciseSetsColumnName: sets,
+        _exerciseTypeColumnName: exerciseType,
+        _exerciseMonthlyProgressGoalsColumnName: monthlyProgressGoals,
+        _exerciseMinRepColumnName: minRep,
+        _exerciseMaxRepColumnName: maxRep,
+      },
+      where: '$_exerciseIdColumnName = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteRoutine(int routineId) async {
+    final db = await database;
+    await db.delete(
+      _routineTableName,
+      where: '$_routineIdColumnName = ?',
+      whereArgs: [routineId],
+    );
+  }
+
+  Future<void> deleteExercise(int exerciseId) async {
+    final db = await database;
+    await db.delete(
+      _exerciseTableName,
+      where: '$_exerciseIdColumnName = ?',
+      whereArgs: [exerciseId],
+    );
+  }
+
+  Future<void> deleteNote(int noteId) async {
+    final db = await database;
+    await db.delete(
+      _noteTableName,
+      where: '$_noteIdColumnName = ?',
+      whereArgs: [noteId],
+    );
+  }
+
+  Future<void> deleteWorkout(int workoutId) async {
+    final db = await database;
+    await db.delete(
+      _workoutTableName,
+      where: '$_workoutIdColumnName = ?',
+      whereArgs: [workoutId],
+    );
   }
 }

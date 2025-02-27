@@ -25,22 +25,6 @@ class _StopWatchInputState extends State<StopWatchInput> {
   final TextEditingController intensityController = TextEditingController();
   late Stopwatch stopwatch;
   late Timer t;
-  int setNumber = -1;
-  Map<String, dynamic>? prevWorkoutData; // Make it nullable
-
-  /// Fetch previous workout data asynchronously
-  void fetchPrevWorkoutData() async {
-    Map<String, dynamic> data =
-        await databaseService.getCardioSetsOfSecondToLastWorkout(
-            widget.routineId, widget.exerciseId);
-
-    setState(() {
-      prevWorkoutData = data;
-    });
-
-    // Debug print the result
-    print("Previous Workout Data: $prevWorkoutData");
-  }
 
 // ********************************** timer related stuff ****************************************************
   void handleStartStop() {
@@ -51,40 +35,48 @@ class _StopWatchInputState extends State<StopWatchInput> {
     }
   }
 
-  String returnFormattedText() {
-    var milli = stopwatch.elapsed.inMilliseconds;
+  // String returnFormattedText() {
+  //   var milli = stopwatch.elapsed.inMilliseconds;
 
-    // String milliseconds = (milli % 1000).toString().padLeft(3, "0");
-    String seconds = ((milli ~/ 1000) % 60).toString().padLeft(2, "0");
-    String minutes = ((milli ~/ 1000) ~/ 60).toString().padLeft(2, "0");
+  //   // String milliseconds = (milli % 1000).toString().padLeft(3, "0");
+  //   String seconds = ((milli ~/ 1000) % 60).toString().padLeft(2, "0");
+  //   String minutes = ((milli ~/ 1000) ~/ 60).toString().padLeft(2, "0");
 
-    return "$minutes:$seconds";
-  }
+  //   return "$minutes:$seconds";
+  // }
 
   int returnFormattedTextInteger() {
-    var milli = stopwatch.elapsed.inMilliseconds;
+    var milli = stopwatch.elapsed.inSeconds;
     return milli;
   }
 
   // ********************************** the main logic ****************************************************
 
   void _submitAndResetAllVariables() async {
+    double intensity = double.tryParse(intensityController.text) ?? 0.0;
     int currentTime = returnFormattedTextInteger();
-    double intensity = double.tryParse(intensityController.text) ??
-        0.0; // Parse intensity to int
+
+    Map<String, dynamic>? prevWorkoutData =
+        await databaseService.getCardioSetsOfSecondToLastWorkout(
+            widget.routineId, widget.exerciseId);
 
     int lastSetNumber = await databaseService.getLastSetNumberCardio(
         widget.routineId, widget.exerciseId, widget.workoutId);
 
+    // print("last set number ${lastSetNumber}");
+
     var times = prevWorkoutData?["times"];
-    if (times != null && times.isNotEmpty && lastSetNumber >= 0) {
+
+    // print(prevWorkoutData);
+
+    if (times != null) {
       int previousTime = times[lastSetNumber];
       int change = currentTime - previousTime;
       double percentageChange =
           previousTime != 0 ? (change / previousTime) * 100 : 0;
 
-      print("Previous Weight: $previousTime");
-      print("Current Weight: $currentTime");
+      print("Previous time: $previousTime");
+      print("Current time: $currentTime");
       print("Change: $change");
       print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
 
@@ -96,11 +88,10 @@ class _StopWatchInputState extends State<StopWatchInput> {
           widget.workoutId, lastSetNumber + 1, currentTime, intensity, 0, 0);
     }
 
-    print("time $currentTime intensity $intensity");
-
     intensityController.clear();
     stopwatch.stop();
     stopwatch.reset();
+    Navigator.pop(context);
   }
 
   // ********************************** the rest **********************************************************
@@ -108,7 +99,6 @@ class _StopWatchInputState extends State<StopWatchInput> {
   @override
   void initState() {
     super.initState();
-    fetchPrevWorkoutData();
 
     stopwatch = Stopwatch();
     t = Timer.periodic(const Duration(milliseconds: 30), (timer) {
@@ -142,10 +132,10 @@ class _StopWatchInputState extends State<StopWatchInput> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(prevWorkoutData.toString(),
-              style: TextStyle(
-                fontSize: 8,
-              )),
+          // Text(prevWorkoutData.toString(),
+          //     style: TextStyle(
+          //       fontSize: 8,
+          //     )),
           SizedBox(
               width: 100,
               child: Column(
@@ -211,9 +201,8 @@ class _StopWatchInputState extends State<StopWatchInput> {
                   ? null
                   : () {
                       _submitAndResetAllVariables();
-                      Navigator.pop(context);
-                      Navigator.pop(context);
                       setState(() {});
+                      widget.onAddSet();
                     },
               child: const Text(
                 "Save",

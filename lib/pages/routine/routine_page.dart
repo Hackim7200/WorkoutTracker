@@ -41,7 +41,10 @@ class _RoutinePageState extends State<RoutinePage> {
                       MaterialPageRoute(
                           builder: (context) => ExercisePage(
                               currentImage: routine.image,
-                              routineId: routine.id)));
+                              routineId: routine.id))).then((_) {
+                    setState(() {});
+                  });
+                  ;
                 },
               );
             },
@@ -62,7 +65,7 @@ class _RoutinePageState extends State<RoutinePage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "R O U T I N E S",
+          "R O U T I N E",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: appBarColor,
@@ -75,7 +78,6 @@ class _RoutinePageState extends State<RoutinePage> {
                         builder: (context) => AddRoutine2(
                               selectedImage: '',
                             ))).then((_) {
-
                   setState(() {});
                 });
               },

@@ -22,8 +22,22 @@ class _AddNoteState extends State<AddNote> {
   final TextEditingController descriptionController = TextEditingController();
 
   // Dropdown variables
-  String selectedValue = "OTHER"; // Default selected value
-  final List<String> dropdownItems = ["OTHER", "CAUTION", "TIPS", "INFO"];
+  String selectedValue = "CAUTION"; // Default selected value
+  final List<String> dropdownItems = ["INFO", "CAUTION", "TIPS"];
+
+  @override
+  void dispose() {
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    descriptionController.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,40 +136,13 @@ class _AddNoteState extends State<AddNote> {
               ),
               const SizedBox(height: 24),
 
-              // // Submit Button
-              // ElevatedButton(
-              //   onPressed: () {
-              //     databaseService.addNote(
-              //         widget.exerciseId,selectedValue, descriptionController.text);
-              //       Navigator.pop(context);
-
-              //     // Handle submission
-              //   },
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: appBarColor,
-              //     padding: const EdgeInsets.symmetric(vertical: 16),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(16),
-              //     ),
-              //   ),
-              //   child: Text(
-              //     "Add Note",
-              //     style: TextStyle(
-              //       fontWeight: FontWeight.bold,
-              //       color: scaffoldColor,
-              //       fontSize: 16,
-              //     ),
-              //   ),
-              // ),
-
               ElevatedButton(
-                onPressed: (descriptionController.text == "")
+                onPressed: (descriptionController.text.isEmpty)
                     ? null
                     : () {
                         databaseService.addNote(widget.exerciseId,
                             selectedValue, descriptionController.text);
                         Navigator.pop(context);
-                        setState(() {});
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: appBarColor,

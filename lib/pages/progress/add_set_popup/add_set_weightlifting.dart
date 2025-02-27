@@ -58,6 +58,10 @@ class _AddSetWeightliftingState extends State<AddSetWeightlifting> {
   // }
 
   void _submitAndResetAllVariables() async {
+    if (mounted) {
+      Navigator.of(context).pop(); // Close the dialog first
+    }
+
     int reps = int.tryParse(repController.text) ?? 0;
     double weight = double.tryParse(weightController.text) ?? 0.0;
 
@@ -67,36 +71,24 @@ class _AddSetWeightliftingState extends State<AddSetWeightlifting> {
     int lastSetNumber = await databaseService.getLastSetNumber(
         widget.routineId, widget.exerciseId, widget.workoutId);
 
-    print("last set number ${lastSetNumber}");
+    var weights = prevWorkoutData?["weights"];
 
-    // var weights = prevWorkoutData?["weights"];
+    if (weights != null) {
+      double previousWeight = weights[lastSetNumber];
+      double change = weight - previousWeight;
+      double percentageChange =
+          previousWeight != 0 ? (change / previousWeight) * 100 : 0;
 
-    print(prevWorkoutData);
+      await databaseService.addSet(widget.workoutId, lastSetNumber + 1, reps,
+          weight, change, percentageChange);
+    } else {
+      await databaseService.addSet(
+          widget.workoutId, lastSetNumber + 1, reps, weight, 0, 0);
+    }
 
-    // if (weights != null) {
-    //   double previousWeight = weights[lastSetNumber];
-    //   double change = weight - previousWeight;
-    //   double percentageChange =
-    //       previousWeight != 0 ? (change / previousWeight) * 100 : 0;
-
-    //   print("Previous Weight: $previousWeight");
-    //   print("Current Weight: $weight");
-    //   print("Change: $change");
-    //   print("Percentage Change: ${percentageChange.toStringAsFixed(2)}%");
-    //   // await databaseService.addSet(widget.workoutId, lastSetNumber + 1, reps,
-    //   //       weight, change, percentageChange);
-    // } else {
-    //   print("No previous workout data available.");
-    //   //   await databaseService.addSet(
-    //   //       widget.workoutId, lastSetNumber + 1, reps, weight, 0, 0);
-    // }
-
-    repController.clear();
-    weightController.clear();
-
-    // Close the dialog safely, this avoids the error of using controller after disposing
     if (mounted) {
-      Navigator.of(context).pop();
+      repController.clear();
+      weightController.clear();
     }
   }
 
@@ -128,7 +120,7 @@ class _AddSetWeightliftingState extends State<AddSetWeightlifting> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextFormField(
-                      controller: weightController,
+                      controller: mounted ? weightController : null,
                       keyboardType: TextInputType.number,
                       style: TextStyle(color: textColor),
                       decoration: const InputDecoration(labelText: 'Weight'),
@@ -144,30 +136,23 @@ class _AddSetWeightliftingState extends State<AddSetWeightlifting> {
                       },
                     ),
                     TextFormField(
-                      controller: repController,
+                      controller: mounted ? repController : null,
                       keyboardType: TextInputType.number,
                       style: TextStyle(color: textColor),
                       decoration: const InputDecoration(labelText: 'Reps '),
-                      //   validator: (value) {
-                      //     if (value == null || value.isEmpty) {
-                      //       return 'Please enter reps';
-                      //     }
-                      //     final reps = int.tryParse(value);
-                      //     if (reps == null || reps > widget.maxRep) {
-                      //       return 'Max ${widget.maxRep}';
-                      //     } else if (reps < widget.minRep) {
-                      //       return 'Min ${widget.minRep}';
-                      //     }
-                      //     return null;
-                      //   },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter reps';
+                        }
+                        final reps = int.tryParse(value);
+                        if (reps == null || reps > widget.maxRep) {
+                          return 'Max ${widget.maxRep}';
+                        } else if (reps < widget.minRep) {
+                          return 'Min ${widget.minRep}';
+                        }
+                        return null;
+                      },
                     ),
-                    //   if (prevWorkoutData != null) ...[
-                    //     const SizedBox(height: 10),
-                    //     Text(
-                    //       "Previous Workout Data: $prevWorkoutData",
-                    //       style: TextStyle(color: textColor, fontSize: 8),
-                    //     ),
-                    //   ],
                   ],
                 ),
               ),
@@ -180,7 +165,7 @@ class _AddSetWeightliftingState extends State<AddSetWeightlifting> {
                       if (_formKey.currentState?.validate() ?? false) {
                         _submitAndResetAllVariables();
 
-                        // widget.onAddSet();
+                        widget.onAddSet();
                       }
                     },
                   ),

@@ -56,9 +56,12 @@ class _ExercisePageState extends State<ExercisePage> {
                                     currentImage: exercise.image,
                                     exerciseId: exercise.id,
                                     routineId: widget.routineId,
-                                    monthlyProgress:exercise.monthlyProgressGoals,
-                                    minRep: exercise.minRep, // Add appropriate value
-                                    maxRep: exercise.maxRep, // Add appropriate value
+                                    monthlyProgress:
+                                        exercise.monthlyProgressGoals,
+                                    minRep: exercise
+                                        .minRep, // Add appropriate value
+                                    maxRep: exercise
+                                        .maxRep, // Add appropriate value
                                     type: exercise.type,
                                     risk: exercise.risk,
                                     numberOfSets: exercise.sets, //
@@ -86,7 +89,10 @@ class _ExercisePageState extends State<ExercisePage> {
                       MaterialPageRoute(
                           builder: (context) => EditRoutine(
                                 selectedImage: widget.currentImage,
-                              )));
+                                routineId: widget.routineId,
+                              ))).then((_) {
+                    setState(() {});
+                  });;
                 },
                 icon: Icon(Icons.edit)),
             IconButton(
