@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/components/image_selection.dart';
 import 'package:workout_tracker/database/database_service.dart';
-import 'package:workout_tracker/database/models/routine_model.dart';
 import 'package:workout_tracker/pages/routine/routine_delete.dart';
 
 class EditRoutine extends StatefulWidget {

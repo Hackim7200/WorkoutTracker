@@ -6,8 +6,13 @@ import 'package:workout_tracker/pages/progress/notes/note.dart';
 class Notes extends StatelessWidget {
   final int routineId;
   final int exerciseId;
+  final VoidCallback onDeleteNote; // Add this callback
 
-  const Notes({super.key, required this.routineId, required this.exerciseId});
+  const Notes(
+      {super.key,
+      required this.routineId,
+      required this.exerciseId,
+      required this.onDeleteNote});
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +39,7 @@ class Notes extends StatelessWidget {
                         noteId: note.id,
                         type: note.type,
                         message: note.content,
+                        onDeleteNote: onDeleteNote,
                       ),
                     ))
                 .toList(),

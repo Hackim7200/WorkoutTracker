@@ -8,11 +8,14 @@ class EditExercise extends StatefulWidget {
   final String selectedImage;
   final int routineId;
   final int exerciseId;
+  final VoidCallback onEditExercise;
+
   const EditExercise(
       {super.key,
       required this.selectedImage,
       required this.routineId,
-      required this.exerciseId});
+      required this.exerciseId,
+      required this.onEditExercise});
 
   @override
   State<EditExercise> createState() => _EditExerciseState();
@@ -165,11 +168,14 @@ class _EditExerciseState extends State<EditExercise> {
         );
       });
     } else {
-      print('Exercise not found.');
+      return print('Exercise not found.');
     }
   }
 
   updateExerciseDetails() async {
+    if (mounted) {
+      Navigator.of(context).pop(); // Close the dialog first
+    }
     await databaseService.updateExercise(
         id: widget.exerciseId,
         routineId: widget.routineId,
@@ -639,8 +645,9 @@ class _EditExerciseState extends State<EditExercise> {
                     if ((_formKey.currentState?.validate() ?? false) &&
                         isImageSelected) {
                       updateExerciseDetails();
+                      widget.onEditExercise();
 
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                      // Navigator.popUntil(context, (route) => route.isFirst);
                     }
                   },
                   style: ElevatedButton.styleFrom(

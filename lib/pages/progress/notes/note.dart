@@ -5,11 +5,14 @@ class Note extends StatelessWidget {
   final String type;
   final String message;
   final int noteId;
+    final VoidCallback onDeleteNote; // Add this callback
+
+  
   const Note(
       {super.key,
       required this.type,
       required this.message,
-      required this.noteId});
+      required this.noteId, required this.onDeleteNote});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +72,7 @@ class Note extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 5),
-                DeleteNote(noteId: noteId, noteText: noteText)
+                DeleteNote(noteId: noteId, noteText: noteText, onDeleteNote: onDeleteNote)
               ],
             ),
           ],

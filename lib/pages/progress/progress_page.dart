@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 import 'package:workout_tracker/pages/exercise/edit_exercise.dart';
+import 'package:workout_tracker/pages/progress/delete_workout.dart';
 import 'package:workout_tracker/pages/progress/main_stats.dart';
 import 'package:workout_tracker/pages/progress/add_set_popup/add_set_calisthenics.dart';
 
@@ -47,12 +48,13 @@ class _ProgressPageState extends State<ProgressPage> {
   final Color textColor = Color.fromRGBO(61, 61, 61, 1);
 
   final DatabaseService databaseService = DatabaseService.instance;
-  late Future<Map<String, dynamic>> workoutData;
+  late Future<Map<String, dynamic>> workoutAndExerciseData;
+  late Map<String, dynamic>? exerciseData;
 
   @override
   void initState() {
     super.initState();
-    workoutData = initialiseVariables();
+    workoutAndExerciseData = initialiseVariables();
   }
 
   int workoutId = -1;
@@ -82,6 +84,9 @@ class _ProgressPageState extends State<ProgressPage> {
           widget.routineId, widget.exerciseId);
     }
 
+    exerciseData = await databaseService.getExercise(widget.exerciseId);
+    print("exercise data ${exerciseData.toString()}");
+
     int lastSetNumber = 0;
 
     if (widget.type == "weightlifting" || widget.type == "calisthenics") {
@@ -97,16 +102,22 @@ class _ProgressPageState extends State<ProgressPage> {
       "lastSetAdded": lastSetNumber,
       "lastDate": lastWorkoutDate,
       "currentDate": nowWorkoutDate,
+      "risk": exerciseData?["risk"],
+      "sets": exerciseData?["sets"],
+      "exercise_type": exerciseData?["exercise_type"],
+      "monthlyProgressGoals": exerciseData?["monthlyProgressGoals"],
+      "min_rep": exerciseData?["min_rep"],
+      "max_rep": exerciseData?["max_rep"]
     };
   }
 
   void refreshWorkoutData() {
     setState(() {
-      workoutData = initialiseVariables();
+      workoutAndExerciseData = initialiseVariables();
     });
   }
 
-  Future<Map<String, dynamic>> testFunction() async {
+  Future<void> testFunction() async {
     // Map<String, dynamic> data =
     //     await databaseService.getCardioSetsOfSecondToLastWorkout(
     //         widget.routineId, widget.exerciseId);
@@ -114,15 +125,14 @@ class _ProgressPageState extends State<ProgressPage> {
     // databaseService.addWorkoutWithDate(
     //     widget.exerciseId, "2025-02-18 21:25:05");
     // databaseService.addCardioSet(3, 2, 100, 100, 100, 100);
-    Map<String, dynamic> lastWorkout = await databaseService.getLastWorkout(
-        widget.routineId, widget.exerciseId);
+    // Map<String, dynamic> lastWorkout = await databaseService.getLastWorkout(
+    //     widget.routineId, widget.exerciseId);
+
+    // int progress =
+    // print(await databaseService.getProgressForThisMonth(widget.exerciseId));
 
     // databaseService.getCardioSetsOfAllWorkouts(
     //     widget.routineId, widget.exerciseId);
-
-    print("last workout$lastWorkout");
-
-    return lastWorkout;
   }
 
   @override
@@ -137,12 +147,12 @@ class _ProgressPageState extends State<ProgressPage> {
         ),
         backgroundColor: appBarColor,
         actions: [
-          IconButton(
-            onPressed: () {
-              testFunction();
-            },
-            icon: Icon(Icons.abc),
-          ),
+          // IconButton(
+          //   onPressed: () {
+          //     testFunction();
+          //   },
+          //   icon: Icon(Icons.abc),
+          // ),
           IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -150,10 +160,9 @@ class _ProgressPageState extends State<ProgressPage> {
                     selectedImage: widget.currentImage,
                     routineId: widget.routineId,
                     exerciseId: widget.exerciseId,
+                    onEditExercise: refreshWorkoutData,
                   );
-                })).then((_) {
-                  setState(() {});
-                });
+                }));
               },
               icon: Icon(Icons.edit)),
           IconButton(
@@ -168,7 +177,7 @@ class _ProgressPageState extends State<ProgressPage> {
         ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: workoutData,
+        future: workoutAndExerciseData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -189,8 +198,7 @@ class _ProgressPageState extends State<ProgressPage> {
               padding: const EdgeInsets.all(5.0),
               child: Column(
                 children: [
-                  Text(
-                      "wrkt_id: $workoutId    Now: $currentDate   Last: $lastDate"),
+                  Text("workout id: $workoutId"),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: Divider(),
@@ -198,20 +206,36 @@ class _ProgressPageState extends State<ProgressPage> {
                   Notes(
                     routineId: widget.routineId,
                     exerciseId: widget.exerciseId,
+                    onDeleteNote: () {
+                      refreshWorkoutData();
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: Divider(),
                   ),
                   MainStats(
-                    type: widget.type,
-                    risk: widget.risk,
-                    numberOfSets: widget.numberOfSets,
-                    minRep: widget.minRep,
-                    maxRep: widget.maxRep,
-                    monthlyProgress: widget.monthlyProgress,
+                    type: data["exercise_type"],
+                    risk: data["risk"],
+                    numberOfSets: data["sets"],
+                    minRep: data["min_rep"],
+                    maxRep: data["max_rep"],
+                    monthlyProgress: data["monthlyProgressGoals"],
                     routineId: widget.routineId,
                     exerciseId: widget.exerciseId,
+                  ),
+                  // SizedBox(height: 50),
+                  Card(
+                    child: ListTile(
+                        tileColor: const Color.fromARGB(255, 255, 210, 49),
+                        title: Text("Delete todays workout ?"),
+                        trailing: DeleteWorkout(
+                            exerciseId: widget.exerciseId,
+                            workoutId: data["workoutId"],
+                            textColor: textColor,
+                            onDeleteNote: () {
+                              refreshWorkoutData();
+                            })),
                   ),
                   SizedBox(height: 100),
                 ],
@@ -221,7 +245,7 @@ class _ProgressPageState extends State<ProgressPage> {
         },
       ),
       floatingActionButton: FutureBuilder<Map<String, dynamic>>(
-        future: workoutData,
+        future: workoutAndExerciseData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting ||
               snapshot.hasError ||

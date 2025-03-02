@@ -77,7 +77,7 @@ class _ExercisePageState extends State<ExercisePage> {
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            "E X E R C I S E S",
+            "E X E R C I S E",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: appBarColor,
@@ -92,7 +92,8 @@ class _ExercisePageState extends State<ExercisePage> {
                                 routineId: widget.routineId,
                               ))).then((_) {
                     setState(() {});
-                  });;
+                  });
+                  ;
                 },
                 icon: Icon(Icons.edit)),
             IconButton(

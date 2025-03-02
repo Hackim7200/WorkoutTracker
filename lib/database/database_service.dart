@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:workout_tracker/database/models/exercise_model.dart';
@@ -275,7 +277,7 @@ class DatabaseService {
   Future<List<NoteModel>> getNotes(int routineId, int exerciseId) async {
     final db = await database; // Get the database instance
     final String query = '''
-    SELECT * 
+    SELECT Note.id as id,Note.type as type, Note.content as content 
     FROM Note
     JOIN Exercise ON Note.$_noteExerciseIdColumnName = Exercise.$_exerciseIdColumnName
     JOIN Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
@@ -295,6 +297,7 @@ class DatabaseService {
                 type: e[_noteTypeColumnName] as String,
               ))
           .toList();
+      print(data.toString());
 
       return notes;
     } catch (e) {
@@ -359,7 +362,8 @@ class DatabaseService {
       // Query the database with the provided routineId, exerciseId, and workoutId
       final data = await db.rawQuery(query, [routineId, exerciseId, workoutId]);
       if (data.isNotEmpty) {
-        print("Data exists");
+        print("data of last set$data ");
+
         List<SetModel> sets = data
             .map((e) => SetModel(
                   id: e[_setIdColumnName] as int,
@@ -562,15 +566,49 @@ class DatabaseService {
       final data = await db.rawQuery(query, [routineId, exerciseId, workoutId]);
 
       if (data.isNotEmpty && data.first['lastSetNumber'] != null) {
+        print(data);
         print("Last strength set number found: ${data.first['lastSetNumber']}");
+
         return data.first['lastSetNumber'] as int;
       } else {
-        print("No strength sets found. Returning 0.");
+        print("No prevous set found. Returning 0.");
         return 0;
       }
     } catch (e) {
       print("Error retrieving last strength set number: $e");
       return 0;
+    }
+  }
+
+  Future<int> getLastWorkoutId(int exerciseId, int workoutId) async {
+    final db = await database;
+
+    final String query = '''
+     SELECT *
+    FROM $_strengthSetTableName
+    JOIN $_workoutTableName 
+      ON $_workoutTableName.$_workoutIdColumnName = $_strengthSetTableName.$_setWorkoutIdColumnName
+    JOIN $_exerciseTableName 
+      ON $_exerciseTableName.$_exerciseIdColumnName = $_workoutTableName.$_workoutExerciseIdColumnName
+    WHERE $_exerciseTableName.$_exerciseIdColumnName = ? 
+      AND $_workoutTableName.$_workoutIdColumnName = ?;
+  ''';
+
+    try {
+      final data = await db.rawQuery(query, [exerciseId, workoutId]);
+
+      if (data.isNotEmpty && data.first['workout_id'] != null) {
+        print(data);
+        print("Last workout id found: ${data.first['workout_id']}");
+
+        return data.first['workout_id'] as int;
+      } else {
+        print("No workoutId found.");
+        return -1;
+      }
+    } catch (e) {
+      print("Error retrieving last workout id: $e");
+      return -1;
     }
   }
 
@@ -1030,22 +1068,27 @@ LIMIT 1;
     }
   }
 
-  Future<int> updateRoutine(
+  Future<void> updateRoutine(
       int id, String title, String description, String image) async {
-    final db = await database;
-    return await db.update(
-      _routineTableName,
-      {
-        _routineTitleColumnName: title,
-        _routineDescriptionColumnName: description,
-        _routineImageColumnName: image,
-      },
-      where: '$_routineIdColumnName = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      await db.update(
+        _routineTableName,
+        {
+          _routineTitleColumnName: title,
+          _routineDescriptionColumnName: description,
+          _routineImageColumnName: image,
+        },
+        where: '$_routineIdColumnName = ?',
+        whereArgs: [id],
+      );
+      print('Routine updated: $title, $description, $image');
+    } catch (e) {
+      print('Not updated: $e');
+    }
   }
 
-  Future<int> updateExercise({
+  Future<void> updateExercise({
     required int id,
     required int routineId,
     required String title,
@@ -1058,59 +1101,138 @@ LIMIT 1;
     required int minRep,
     required int maxRep,
   }) async {
-    final db = await database;
-    return await db.update(
-      _exerciseTableName,
-      {
-        _exerciseRoutineIdColumnName: routineId,
-        _exerciseTitleColumnName: title,
-        _exerciseImageColumnName: image,
-        _exerciseMusclesGroupsColumnName: musclesGroups,
-        _exerciseRiskColumnName: risk,
-        _exerciseSetsColumnName: sets,
-        _exerciseTypeColumnName: exerciseType,
-        _exerciseMonthlyProgressGoalsColumnName: monthlyProgressGoals,
-        _exerciseMinRepColumnName: minRep,
-        _exerciseMaxRepColumnName: maxRep,
-      },
-      where: '$_exerciseIdColumnName = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      await db.update(
+        _exerciseTableName,
+        {
+          _exerciseRoutineIdColumnName: routineId,
+          _exerciseTitleColumnName: title,
+          _exerciseImageColumnName: image,
+          _exerciseMusclesGroupsColumnName: musclesGroups,
+          _exerciseRiskColumnName: risk,
+          _exerciseSetsColumnName: sets,
+          _exerciseTypeColumnName: exerciseType,
+          _exerciseMonthlyProgressGoalsColumnName: monthlyProgressGoals,
+          _exerciseMinRepColumnName: minRep,
+          _exerciseMaxRepColumnName: maxRep,
+        },
+        where: '$_exerciseIdColumnName = ?',
+        whereArgs: [id],
+      );
+      print('Exercise updated: $title');
+    } catch (e) {
+      print('Not updated: $e');
+    }
   }
 
   Future<void> deleteRoutine(int routineId) async {
-    final db = await database;
-    await db.delete(
-      _routineTableName,
-      where: '$_routineIdColumnName = ?',
-      whereArgs: [routineId],
-    );
+    try {
+      final db = await database;
+      await db.delete(
+        _routineTableName,
+        where: '$_routineIdColumnName = ?',
+        whereArgs: [routineId],
+      );
+      print('Routine deleted: $routineId');
+    } catch (e) {
+      print('Not deleted: $e');
+    }
   }
 
   Future<void> deleteExercise(int exerciseId) async {
-    final db = await database;
-    await db.delete(
-      _exerciseTableName,
-      where: '$_exerciseIdColumnName = ?',
-      whereArgs: [exerciseId],
-    );
+    try {
+      final db = await database;
+      await db.delete(
+        _exerciseTableName,
+        where: '$_exerciseIdColumnName = ?',
+        whereArgs: [exerciseId],
+      );
+      print('Exercise deleted: $exerciseId');
+    } catch (e) {
+      print('Not deleted: $e');
+    }
   }
 
   Future<void> deleteNote(int noteId) async {
-    final db = await database;
-    await db.delete(
-      _noteTableName,
-      where: '$_noteIdColumnName = ?',
-      whereArgs: [noteId],
-    );
+    try {
+      final db = await database;
+      await db.delete(
+        _noteTableName,
+        where: '$_noteIdColumnName = ?',
+        whereArgs: [noteId],
+      );
+      print('Note deleted: $noteId');
+    } catch (e) {
+      print('Not deleted: $e');
+    }
   }
 
   Future<void> deleteWorkout(int workoutId) async {
+    try {
+      final db = await database;
+      await db.delete(
+        _workoutTableName,
+        where: '$_workoutIdColumnName = ?',
+        whereArgs: [workoutId],
+      );
+      print('Workout deleted: $workoutId');
+    } catch (e) {
+      print('Not deleted: $e');
+    }
+  }
+
+  Future<List<double>?> getProgressForThisMonth(
+      int exerciseId, int setNumber) async {
     final db = await database;
-    await db.delete(
-      _workoutTableName,
-      where: '$_workoutIdColumnName = ?',
-      whereArgs: [workoutId],
-    );
+
+    // Generate dynamic SQL for up to 10 sets
+    String generateSetProgressColumns(int setNumber) {
+      return '''
+      SUM(CASE WHEN StrengthTrainingSet.$_setNumberColumnName = $setNumber 
+        THEN StrengthTrainingSet.$_setDifferenceColumnName END) AS "progress$setNumber"
+    ''';
+    }
+
+    // Generate the SQL for all 10 sets
+    String setProgressColumns =
+        List.generate(10, (i) => generateSetProgressColumns(i + 1)).join(',');
+
+    final String query = '''
+    SELECT strftime('%Y-%m', Workout."$_workoutDateColumnName") AS "Month",
+           $setProgressColumns
+    FROM "$_exerciseTableName" Exercise
+    JOIN "$_workoutTableName" Workout 
+      ON Workout."$_workoutExerciseIdColumnName" = Exercise."$_exerciseIdColumnName"
+    JOIN "$_strengthSetTableName" StrengthTrainingSet 
+      ON StrengthTrainingSet."$_setWorkoutIdColumnName" = Workout."$_workoutIdColumnName"
+    WHERE Exercise."$_exerciseIdColumnName" = ?
+    GROUP BY "Month"
+    ORDER BY "Month" DESC
+    LIMIT 1;
+  ''';
+
+    try {
+      final data = await db.rawQuery(query, [exerciseId]);
+
+      List<double> progress = [];
+      if (data.isNotEmpty) {
+        print(data);
+
+        for (int i = 1; i <= setNumber; i++) {
+          progress.add(data.first["progress$i"] == null
+              ? 0.0
+              : data.first["progress$i"] as double);
+        }
+        return progress;
+      } else {
+        return null;
+
+        print("No progress found for this month.");
+      }
+    } catch (e) {
+      print("Error retrieving progress for this month: $e");
+      return null;
+    }
   }
 }

@@ -3,6 +3,7 @@ import 'package:workout_tracker/database/database_service.dart';
 
 class AddNote extends StatefulWidget {
   final int exerciseId;
+
   const AddNote({
     super.key,
     required this.exerciseId,

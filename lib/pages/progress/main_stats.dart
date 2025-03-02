@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/pages/progress/goalBar/difference_from_goal.dart';
 import 'package:workout_tracker/pages/progress/goalBar/goal.dart';
 import 'package:workout_tracker/pages/progress/data_table.dart/calisthenics/prorgess_table_calisthenics.dart';
 import 'package:workout_tracker/pages/progress/data_table.dart/cardio/prorgess_table_cardio.dart';
@@ -86,6 +87,15 @@ class MainStats extends StatelessWidget {
                   value: "$maxRep reps",
                 ),
               ],
+            ),
+          ),
+          Container(
+            height: 150,
+            // width: 200,
+            child: DifferenceFromGoal(
+              exerciseId: exerciseId,
+              setNumber: numberOfSets,
+              monthlyProgressGoals: monthlyProgress,
             ),
           ),
           ProgressTableWeightlifting(

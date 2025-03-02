@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/database/database_service.dart';
 
-class DeleteNote extends StatefulWidget {
-  final int noteId;
-  final Color noteText;
+class DeleteWorkout extends StatefulWidget {
+  final int workoutId, exerciseId;
+  final Color textColor;
   final VoidCallback onDeleteNote; // Add this callback
 
-  const DeleteNote(
+  const DeleteWorkout(
       {super.key,
-      required this.noteId,
-      required this.noteText,
-      required this.onDeleteNote});
+      required this.workoutId,
+      required this.textColor,
+      required this.onDeleteNote,
+      required this.exerciseId});
 
   @override
-  State<DeleteNote> createState() => _DeleteNoteState();
+  State<DeleteWorkout> createState() => _DeleteWorkoutState();
 }
 
-class _DeleteNoteState extends State<DeleteNote> {
+class _DeleteWorkoutState extends State<DeleteWorkout> {
   @override
   Widget build(BuildContext context) {
     final DatabaseService databaseService = DatabaseService.instance;
-    deleteNote() async {
-      await databaseService.deleteNote(widget.noteId);
+    deleteWorkout() async {
+      databaseService.deleteWorkout(widget.workoutId);
+
       widget.onDeleteNote();
       print("delete note");
     }
@@ -34,13 +36,13 @@ class _DeleteNoteState extends State<DeleteNote> {
               return AlertDialog(
                 backgroundColor: const Color.fromARGB(255, 255, 112, 112),
                 title: Text(
-                  "Delete Note",
+                  "Delete todays workout ?",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Are you sure you want to delete this Note?")
+                    Text("Are you sure you want to delete this Workout?")
                   ],
                 ),
                 actions: [
@@ -54,7 +56,7 @@ class _DeleteNoteState extends State<DeleteNote> {
                           child: Text("Cancel")),
                       ElevatedButton(
                           onPressed: () {
-                            deleteNote();
+                            deleteWorkout();
 
                             Navigator.pop(context);
                           },
@@ -66,6 +68,6 @@ class _DeleteNoteState extends State<DeleteNote> {
             },
           );
         },
-        icon: Icon(Icons.delete, color: widget.noteText, size: 30));
+        icon: Icon(Icons.delete, color: widget.textColor, size: 30));
   }
 }

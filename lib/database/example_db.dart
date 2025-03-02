@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:workout_tracker/database/models/routine_model.dart';
 
 class DatabaseService {
   static Database? _db;
@@ -19,11 +20,13 @@ class DatabaseService {
   final String _exerciseTitleColumnName = "title";
   final String _exerciseImageColumnName = "image";
   final String _exerciseMusclesGroupsColumnName = "musclesGroups";
+  final String _exerciseSetsColumnName = "sets";
   final String _exerciseRiskColumnName = "risk";
+  final String _exerciseTypeColumnName = "exercise_type";
+
+  final String _exerciseMonthlyProgressGoalsColumnName = "monthlyProgressGoals";
   final String _exerciseMinRepColumnName = "min_rep";
   final String _exerciseMaxRepColumnName = "max_rep";
-  final String _exerciseSetsColumnName = "sets";
-  final String _exerciseMonthlyProgressGoalsColumnName = "monthlyProgressGoals";
 
   //Note table and column
   final String _noteTableName = "Note";
@@ -38,15 +41,25 @@ class DatabaseService {
   final String _workoutExerciseIdColumnName = "exercise_id";
   final String _workoutDateColumnName = "date";
 
-  //set table and column
-  final String _setTableName = "StrengthTrainingSet";
+  //strengthTraining table and column
+  final String _strengthSetTableName = "StrengthTrainingSet";
   final String _setIdColumnName = "id";
   final String _setWorkoutIdColumnName = "workout_id";
   final String _setNumberColumnName = "number";
   final String _setRepsColumnName = "reps";
   final String _setWeightColumnName = "weight";
-  final String _setPercentageIncreaseColumnName = "percentageIncrease";
-  final String _setWeightDifferenceColumnName = "weightDifference";
+  final String _setPercentageChangeColumnName = "percentageIncrease";
+  final String _setDifferenceColumnName = "weightDifference";
+
+  //cardio table and column
+  final String _cardioSetTableName = "CardioTrainingSet";
+  final String _cardioSetIdColumnName = "id";
+  final String _cardioSetWorkoutIdColumnName = "workout_id";
+  final String _cardioSetNumberColumnName = "number";
+  final String _cardioSetTimeColumnName = "time";
+  final String _cardioSetIntensityColumnName = "intensity";
+  final String _cardioSetPercentageChangeColumnName = "percentageIncrease";
+  final String _cardioSetDifferenceColumnName = "difference";
 
   // Private constructor
 
@@ -87,11 +100,15 @@ class DatabaseService {
               $_exerciseImageColumnName TEXT NOT NULL,
               $_exerciseMusclesGroupsColumnName TEXT NOT NULL,
               $_exerciseRiskColumnName TEXT NOT NULL,
-              $_exerciseMinRepColumnName INTEGER NOT NULL, 
-              $_exerciseMaxRepColumnName INTEGER NOT NULL,
               $_exerciseSetsColumnName INTEGER NOT NULL,
+              $_exerciseTypeColumnName TEXT NOT NULL,
+
               $_exerciseMonthlyProgressGoalsColumnName REAL NOT NULL,
+              $_exerciseMinRepColumnName INTEGER  NOT NULL, 
+              $_exerciseMaxRepColumnName INTEGER  NOT NULL,
+
               FOREIGN KEY ($_exerciseRoutineIdColumnName) REFERENCES $_routineTableName($_routineIdColumnName)
+              ON DELETE CASCADE
             );
           """);
 
@@ -102,6 +119,7 @@ class DatabaseService {
               $_noteTypeColumnName TEXT NOT NULL,
               $_noteContentColumnName TEXT NOT NULL,
               FOREIGN KEY ($_noteExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
+              ON DELETE CASCADE
               );
               """);
 
@@ -111,20 +129,42 @@ class DatabaseService {
               $_workoutExerciseIdColumnName INTEGER NOT NULL,
               $_workoutDateColumnName TEXT NOT NULL,
               FOREIGN KEY ($_workoutExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
+              ON DELETE CASCADE
               );
               """);
 
           db.execute("""
-         CREATE TABLE $_setTableName (
+         CREATE TABLE $_strengthSetTableName (
               $_setIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
               $_setWorkoutIdColumnName INTEGER NOT NULL,
               $_setNumberColumnName INTEGER NOT NULL,
               $_setWeightColumnName REAL NOT NULL,
               $_setRepsColumnName INTEGER NOT NULL,
-              $_setWeightDifferenceColumnName REAL NOT NULL,
-              $_setPercentageIncreaseColumnName REAL NOT NULL,
+              $_setPercentageChangeColumnName  REAL NOT NULL,
+              $_setDifferenceColumnName  REAL NOT NULL,
+
+
+
+
 
               FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+            ON DELETE CASCADE
+            );
+
+              """);
+
+          db.execute("""
+         CREATE TABLE $_cardioSetTableName (
+              $_cardioSetIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+              $_cardioSetWorkoutIdColumnName INTEGER NOT NULL,
+              $_cardioSetNumberColumnName INTEGER NOT NULL,
+              $_cardioSetIntensityColumnName REAL NOT NULL,
+              $_cardioSetTimeColumnName INTEGER NOT NULL,
+              $_cardioSetPercentageChangeColumnName  REAL NOT NULL,
+              $_cardioSetDifferenceColumnName  INTEGER NOT NULL,
+              FOREIGN KEY ($_cardioSetWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+              ON DELETE CASCADE
+
             );
 
               """);
@@ -133,30 +173,42 @@ class DatabaseService {
     } catch (e) {
       throw Exception("Error initializing database: $e");
     }
- 
   }
-  Future<int> getSetsOfWorkout(
-      int routineId, int exerciseId, int workoutId) async {
+
+  Future<int> getProgressForThisMonth(int exerciseId, int workoutId) async {
     final db = await database;
-    const String query = '''
-      SELECT MAX(number) AS lastSet
-      FROM StrengthTrainingSet
-      JOIN Workout ON Workout.id = StrengthTrainingSet.workout_id
-      JOIN Exercise ON Exercise.id = Workout.exercise_id
-      JOIN Routine ON Routine.id = Exercise.routine_id
-      WHERE Routine.id = ? AND Exercise.id = ? AND Workout.id = ?;
-    ''';
+
+    final String query = '''
+ SELECT strftime('%Y-%m', "date") AS "Month" , sum(StrengthTraining.diff) as progress
+    FROM Exercise
+    JOIN Workout ON Workout.exerciseId = Exercise.id
+	JOIN StrengthTraining ON StrengthTraining.workoutId = Workout.id
+	
+	WHERE Exercise.id ==1
+
+
+GROUP BY "Month"
+ORDER BY "Month" DESC
+
+LIMIT 1;
+
+
+  ''';
 
     try {
-      final data = await db.rawQuery(query, [routineId, exerciseId, workoutId]);
-      return (data.isNotEmpty && data.first["lastSet"] != null)
-          ? data.first["lastSet"] as int
-          : -1;
+      final data = await db.rawQuery(query, [exerciseId, workoutId]);
+
+      if (data.isNotEmpty && data.first['workout_id'] != null) {
+        print(data);
+
+        return data.first['workout_id'] as int;
+      } else {
+        print("No workoutId found.");
+        return 0;
+      }
     } catch (e) {
-      print("Error retrieving workout sets: $e");
-      return -1;
+      print("Error retrieving last workout id: $e");
+      return 0;
     }
   }
-
- 
 }
