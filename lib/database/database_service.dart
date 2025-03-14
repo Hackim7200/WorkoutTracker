@@ -1,3 +1,4 @@
+import 'dart:math';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -16,6 +17,7 @@ class DatabaseService {
   final String _routineTitleColumnName = "title";
   final String _routineDescriptionColumnName = "description";
   final String _routineImageColumnName = "image";
+  final String _routineOrderColumnName = "routine_order";
 
   //Exercise table and column
   final String _exerciseTableName = "Exercise";
@@ -27,6 +29,7 @@ class DatabaseService {
   final String _exerciseSetsColumnName = "sets";
   final String _exerciseRiskColumnName = "risk";
   final String _exerciseTypeColumnName = "exercise_type";
+  final String _exerciseOrderColumnName = "exercise_order";
 
   final String _exerciseMonthlyProgressGoalsColumnName = "monthlyProgressGoals";
   final String _exerciseMinRepColumnName = "min_rep";
@@ -38,6 +41,7 @@ class DatabaseService {
   final String _noteExerciseIdColumnName = "exercise_id";
   final String _noteTypeColumnName = "type";
   final String _noteContentColumnName = "content";
+  final String _noteOrderColumnName = "note_order";
 
   //workout table and column
   final String _workoutTableName = "Workout";
@@ -87,91 +91,83 @@ class DatabaseService {
         version: 1,
         onCreate: (db, version) {
           db.execute("""
-            CREATE TABLE $_routineTableName (
-              $_routineIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-              $_routineTitleColumnName TEXT NOT NULL,
-              $_routineDescriptionColumnName TEXT NOT NULL,
-               $_routineImageColumnName TEXT NOT NULL
-
-            );
-          """);
-
-          db.execute("""
-            CREATE TABLE $_exerciseTableName (
-              $_exerciseIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-              $_exerciseRoutineIdColumnName INTEGER NOT NULL,
-              $_exerciseTitleColumnName TEXT NOT NULL,
-              $_exerciseImageColumnName TEXT NOT NULL,
-              $_exerciseMusclesGroupsColumnName TEXT NOT NULL,
-              $_exerciseRiskColumnName TEXT NOT NULL,
-              $_exerciseSetsColumnName INTEGER NOT NULL,
-              $_exerciseTypeColumnName TEXT NOT NULL,
-
-              $_exerciseMonthlyProgressGoalsColumnName REAL NOT NULL,
-              $_exerciseMinRepColumnName INTEGER  NOT NULL, 
-              $_exerciseMaxRepColumnName INTEGER  NOT NULL,
-
-              FOREIGN KEY ($_exerciseRoutineIdColumnName) REFERENCES $_routineTableName($_routineIdColumnName)
-              ON DELETE CASCADE
-            );
-          """);
+          CREATE TABLE $_routineTableName (
+            $_routineIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+            $_routineTitleColumnName TEXT NOT NULL,
+            $_routineDescriptionColumnName TEXT NOT NULL,
+            $_routineImageColumnName TEXT NOT NULL,
+            $_routineOrderColumnName INTEGER NOT NULL
+          );
+        """);
 
           db.execute("""
-          CREATE TABLE $_noteTableName (
-              $_noteIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-              $_noteExerciseIdColumnName INTEGER NOT NULL,
-              $_noteTypeColumnName TEXT NOT NULL,
-              $_noteContentColumnName TEXT NOT NULL,
-              FOREIGN KEY ($_noteExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
-              ON DELETE CASCADE
-              );
-              """);
-
-          db.execute("""
-          CREATE TABLE $_workoutTableName (
-              $_workoutIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-              $_workoutExerciseIdColumnName INTEGER NOT NULL,
-              $_workoutDateColumnName TEXT NOT NULL,
-              FOREIGN KEY ($_workoutExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
-              ON DELETE CASCADE
-              );
-              """);
-
-          db.execute("""
-         CREATE TABLE $_strengthSetTableName (
-              $_setIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-              $_setWorkoutIdColumnName INTEGER NOT NULL,
-              $_setNumberColumnName INTEGER NOT NULL,
-              $_setWeightColumnName REAL NOT NULL,
-              $_setRepsColumnName INTEGER NOT NULL,
-              $_setPercentageChangeColumnName  REAL NOT NULL,
-              $_setDifferenceColumnName  REAL NOT NULL,
-
-
-
-
-
-              FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+          CREATE TABLE $_exerciseTableName (
+            $_exerciseIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+            $_exerciseRoutineIdColumnName INTEGER NOT NULL,
+            $_exerciseTitleColumnName TEXT NOT NULL,
+            $_exerciseImageColumnName TEXT NOT NULL,
+            $_exerciseMusclesGroupsColumnName TEXT NOT NULL,
+            $_exerciseRiskColumnName TEXT NOT NULL,
+            $_exerciseSetsColumnName INTEGER NOT NULL,
+            $_exerciseTypeColumnName TEXT NOT NULL,
+            $_exerciseOrderColumnName INTEGER NOT NULL,  -- **Added missing comma**
+            $_exerciseMonthlyProgressGoalsColumnName REAL NOT NULL,
+            $_exerciseMinRepColumnName INTEGER NOT NULL, 
+            $_exerciseMaxRepColumnName INTEGER NOT NULL,
+            FOREIGN KEY ($_exerciseRoutineIdColumnName) REFERENCES $_routineTableName($_routineIdColumnName)
             ON DELETE CASCADE
-            );
-
-              """);
+          );
+        """);
 
           db.execute("""
-         CREATE TABLE $_cardioSetTableName (
-              $_cardioSetIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
-              $_cardioSetWorkoutIdColumnName INTEGER NOT NULL,
-              $_cardioSetNumberColumnName INTEGER NOT NULL,
-              $_cardioSetIntensityColumnName REAL NOT NULL,
-              $_cardioSetTimeColumnName INTEGER NOT NULL,
-              $_cardioSetPercentageChangeColumnName  REAL NOT NULL,
-              $_cardioSetDifferenceColumnName  INTEGER NOT NULL,
-              FOREIGN KEY ($_cardioSetWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
-              ON DELETE CASCADE
+        CREATE TABLE $_noteTableName (
+            $_noteIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+            $_noteExerciseIdColumnName INTEGER NOT NULL,
+            $_noteTypeColumnName TEXT NOT NULL,
+            $_noteContentColumnName TEXT NOT NULL,
+            $_noteOrderColumnName INTEGER NOT NULL,
+            FOREIGN KEY ($_noteExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
+            ON DELETE CASCADE
+        );
+        """);
 
-            );
+          db.execute("""
+        CREATE TABLE $_workoutTableName (
+            $_workoutIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+            $_workoutExerciseIdColumnName INTEGER NOT NULL,
+            $_workoutDateColumnName TEXT NOT NULL,
+            FOREIGN KEY ($_workoutExerciseIdColumnName) REFERENCES $_exerciseTableName($_exerciseIdColumnName)
+            ON DELETE CASCADE
+        );
+        """);
 
-              """);
+          db.execute("""
+       CREATE TABLE $_strengthSetTableName (
+            $_setIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+            $_setWorkoutIdColumnName INTEGER NOT NULL,
+            $_setNumberColumnName INTEGER NOT NULL,
+            $_setWeightColumnName REAL NOT NULL,
+            $_setRepsColumnName INTEGER NOT NULL,
+            $_setPercentageChangeColumnName REAL NOT NULL,
+            $_setDifferenceColumnName REAL NOT NULL,
+            FOREIGN KEY ($_setWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+            ON DELETE CASCADE
+        );
+        """);
+
+          db.execute("""
+       CREATE TABLE $_cardioSetTableName (
+            $_cardioSetIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
+            $_cardioSetWorkoutIdColumnName INTEGER NOT NULL,
+            $_cardioSetNumberColumnName INTEGER NOT NULL,
+            $_cardioSetIntensityColumnName REAL NOT NULL,
+            $_cardioSetTimeColumnName INTEGER NOT NULL,
+            $_cardioSetPercentageChangeColumnName REAL NOT NULL,
+            $_cardioSetDifferenceColumnName INTEGER NOT NULL,
+            FOREIGN KEY ($_cardioSetWorkoutIdColumnName) REFERENCES $_workoutTableName($_workoutIdColumnName)
+            ON DELETE CASCADE
+        );
+        """);
         },
       );
     } catch (e) {
@@ -182,17 +178,28 @@ class DatabaseService {
   Future<void> addRoutine(String name, String description, String image) async {
     try {
       final db = await database;
+
+      // Get the next available order number
+      final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT COALESCE(MAX($_routineOrderColumnName), 0) + 1 AS nextOrder
+      FROM $_routineTableName
+    ''');
+
+      int nextOrder = result.first['nextOrder'] ?? 1;
+
       await db.insert(
         _routineTableName,
         {
           _routineTitleColumnName: name,
           _routineDescriptionColumnName: description,
-          _routineImageColumnName: image
+          _routineImageColumnName: image,
+          _routineOrderColumnName: nextOrder, // Auto-increment order
         },
       );
-      print('Routine added successfully');
+
+      print('Routine added successfully with order: $nextOrder');
     } catch (e) {
-      throw Exception("Error adding task: $e");
+      throw Exception("Error adding routine: $e");
     }
   }
 
@@ -234,6 +241,8 @@ class DatabaseService {
         _exerciseTableName,
         where: '$_exerciseRoutineIdColumnName = ?', // Filter by routineId
         whereArgs: [routineId], // Pass routineId as an argument
+        orderBy:
+            '$_exerciseOrderColumnName ASC', // Orders exercises by `exercise_order`
       );
 
       // Map the query results to a list of WorkoutExercise objects
@@ -249,6 +258,7 @@ class DatabaseService {
               type: e[_exerciseTypeColumnName] as String,
               minRep: e[_exerciseMinRepColumnName] as int,
               maxRep: e[_exerciseMaxRepColumnName] as int,
+              order: e[_exerciseOrderColumnName] as int,
               monthlyProgressGoals:
                   e[_exerciseMonthlyProgressGoalsColumnName] as double))
           .toList();
@@ -612,19 +622,28 @@ class DatabaseService {
   }
 
   Future<void> addExercise(
-    int routineId,
-    String title,
-    String image,
-    int sets,
-    String risk,
-    String muscleGroups,
-    String type,
-    double monthlyProgressGoals,
-    int minRep,
-    int maxRep,
-  ) async {
+      int routineId,
+      String title,
+      String image,
+      int sets,
+      String risk,
+      String muscleGroups,
+      String type,
+      double monthlyProgressGoals,
+      int minRep,
+      int maxRep) async {
     try {
       final db = await database;
+
+      // Get the next available order number
+      final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT COALESCE(MAX($_exerciseOrderColumnName), 0) + 1 AS nextOrder
+      FROM $_exerciseTableName
+      WHERE $_exerciseRoutineIdColumnName = ?
+    ''', [routineId]);
+
+      int nextOrder = result.first['nextOrder'] ?? 1;
+
       await db.insert(
         _exerciseTableName,
         {
@@ -638,9 +657,10 @@ class DatabaseService {
           _exerciseMonthlyProgressGoalsColumnName: monthlyProgressGoals,
           _exerciseMinRepColumnName: minRep,
           _exerciseMaxRepColumnName: maxRep,
+          _exerciseOrderColumnName: nextOrder, // Auto-increment order
         },
       );
-      print('Exercise added successfully');
+      print('Exercise added successfully with order: $nextOrder');
     } catch (e) {
       throw Exception("Error adding exercise: $e");
     }
@@ -649,17 +669,29 @@ class DatabaseService {
   Future<void> addNote(int exerciseId, String type, String content) async {
     try {
       final db = await database;
+
+      // Get the next available order number for the given exercise
+      final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT COALESCE(MAX($_noteOrderColumnName), 0) + 1 AS nextOrder
+      FROM $_noteTableName
+      WHERE $_noteExerciseIdColumnName = ?
+    ''', [exerciseId]);
+
+      int nextOrder = result.first['nextOrder'] ?? 1;
+
       await db.insert(
         _noteTableName,
         {
           _noteExerciseIdColumnName: exerciseId,
           _noteTypeColumnName: type,
-          _noteContentColumnName: content
+          _noteContentColumnName: content,
+          _noteOrderColumnName: nextOrder, // Auto-increment order
         },
       );
-      print('Note added successfully');
+
+      print('Note added successfully with order: $nextOrder');
     } catch (e) {
-      throw Exception("Error adding exercise: $e");
+      throw Exception("Error adding note: $e");
     }
   }
 
@@ -1234,4 +1266,110 @@ LIMIT 1;
       return null;
     }
   }
+
+  Future<int> getLastExerciseOrder(int routine_id) async {
+    {
+      final db = await database;
+
+      final String query = '''
+    SELECT MAX($_exerciseOrderColumnName) AS exercise_order
+    FROM $_exerciseTableName
+    WHERE $_routineIdColumnName = ?;
+    
+  ''';
+
+      try {
+        final data = await db.rawQuery(query, [routine_id]);
+
+        if (data.isNotEmpty && data.first['exercise_order'] != null) {
+          print("Last order number found: ${data.first['exercise_order']}");
+          return data.first['exercise_order'] as int;
+        } else {
+          print("No exercises order found. Returning 0.");
+          return 0;
+        }
+      } catch (e) {
+        print("Error retrieving last exercise order: $e");
+        return 0;
+      }
+    }
+  }
+
+  Future<void> reorderExercise(int movedId, int oldIndex, int newIndex) async {
+    final db = await database;
+    try {
+      await db.transaction((txn) async {
+        if (oldIndex < newIndex) {
+          // Moving down: Shift all in between up
+          await txn.rawUpdate('''
+          UPDATE $_exerciseTableName 
+          SET $_exerciseOrderColumnName = $_exerciseOrderColumnName - 1
+          WHERE $_exerciseOrderColumnName > ? AND $_exerciseOrderColumnName <= ?
+        ''', [oldIndex, newIndex]);
+        } else {
+          // Moving up: Shift all in between down
+          await txn.rawUpdate('''
+          UPDATE $_exerciseTableName 
+          SET $_exerciseOrderColumnName = $_exerciseOrderColumnName + 1
+          WHERE $_exerciseOrderColumnName >= ? AND $_exerciseOrderColumnName < ?
+        ''', [newIndex, oldIndex]);
+        }
+
+        // Place the moved exercise in its new position
+        await txn.rawUpdate('''
+        UPDATE $_exerciseTableName 
+        SET $_exerciseOrderColumnName = ?
+        WHERE $_exerciseIdColumnName = ?
+      ''', [newIndex, movedId]);
+      });
+
+      print('Exercise moved from $oldIndex to $newIndex');
+    } catch (e) {
+      print('Failed to reorder exercise: $e');
+    }
+  }
+
+  // old working code  Future<void> reorderExercise(
+  //     int firstId, int lastId, int firstOrder, int lastOrder) async {
+  //   try {
+  //     final db = await database;
+
+  //     // Temporarily set the first exercise's order to a unique value
+  //     await db.update(
+  //       _exerciseTableName,
+  //       {_exerciseOrderColumnName: -1}, // Temporary placeholder
+  //       where: '$_exerciseIdColumnName = ?',
+  //       whereArgs: [firstId],
+  //     );
+
+  //     // Update the second exercise with the first exercise's order
+  //     await db.update(
+  //       _exerciseTableName,
+  //       {_exerciseOrderColumnName: firstOrder},
+  //       where: '$_exerciseIdColumnName = ?',
+  //       whereArgs: [lastId],
+  //     );
+
+  //     // Finally, set the first exercise to the second exercise's order
+  //     await db.update(
+  //       _exerciseTableName,
+  //       {_exerciseOrderColumnName: lastOrder},
+  //       where: '$_exerciseIdColumnName = ?',
+  //       whereArgs: [firstId],
+  //     );
+
+  //     print('Exercise order updated: $firstOrder ↔ $lastOrder');
+  //   } catch (e) {
+  //     print('Failed to update exercise order: $e');
+  //   }
+  // }
 }
+
+//     Future<void>? reorderRoutine() {
+//       return null;
+//     }
+
+//     Future<void>? reorderNote() {
+//       return null;
+
+// }

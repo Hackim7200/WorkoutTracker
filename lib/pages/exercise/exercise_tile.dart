@@ -21,50 +21,53 @@ class ExerciseTile extends StatelessWidget {
     final Color textColor = Color.fromRGBO(61, 61, 61, 1);
     final Color cardColor = Color.fromRGBO(245, 236, 213, 1);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x33000000),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          height: 100,
-          child: Row(
-            children: [
-              AspectRatio(
-                aspectRatio: 1 / 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(0.0),
-                  child: Image.asset(img),
+    return ListTile(
+      key: key,
+      subtitle: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(title,
-                        style: TextStyle(
+              ],
+            ),
+            height: 100,
+            child: Row(
+              children: [
+                AspectRatio(
+                  aspectRatio: 1 / 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: Image.asset(img),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(title,
+                          style: TextStyle(
+                              color: textColor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold)),
+                      Text(info,
+                          style: TextStyle(
                             color: textColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold)),
-                    Text(info,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 12,
-                        ))
-                  ],
-                ),
-              )
-            ],
+                            fontSize: 12,
+                          ))
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

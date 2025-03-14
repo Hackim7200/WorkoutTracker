@@ -97,7 +97,7 @@ class _AddExerciseState extends State<AddExercise> {
   }
 
   // Dropdown variables
-  int selectedSets = 1; // Default selected value
+  int selectedSets = 4; // Default selected value
   final List<int> setOptions = [1, 2, 3, 4, 5];
 
   String selectedRisk = "MED"; // Default selected value
@@ -121,8 +121,8 @@ class _AddExerciseState extends State<AddExercise> {
   String selectedType = "weightlifting";
   final List<String> typeOptions = ["weightlifting", "cardio", "calisthenics"];
 
-  int selectedMinRep = 1;
-  int selectedMaxRep = 10;
+  int selectedMinRep = 10;
+  int selectedMaxRep = 12;
   final List<int> repOptions = List.generate(30, (index) => index + 1);
 
   @override

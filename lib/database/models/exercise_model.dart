@@ -10,8 +10,9 @@ class ExerciseModel {
   final int minRep;
   final int maxRep;
   final double monthlyProgressGoals;
+  final int order;
 
-  ExerciseModel({
+  ExerciseModel( {
     required this.id,
     required this.routineId,
     required this.title,
@@ -23,5 +24,6 @@ class ExerciseModel {
     required this.risk,
     required this.muscleGroups,
     required this.type,
+    required this.order
   });
 }

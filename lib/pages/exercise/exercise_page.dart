@@ -22,10 +22,6 @@ class ExercisePage extends StatefulWidget {
 }
 
 class _ExercisePageState extends State<ExercisePage> {
-// Widget _exercisesList (){
-//   // return FutureBuilder(future: future, builder: builder)
-// }
-
   @override
   Widget build(BuildContext context) {
     final DatabaseService databaseService = DatabaseService.instance;
@@ -39,34 +35,65 @@ class _ExercisePageState extends State<ExercisePage> {
       return FutureBuilder(
           future: databaseService.getExercises(widget.routineId),
           builder: (context, snapshot) {
-            return ListView.builder(
-                itemCount: snapshot.data?.length ?? 0,
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child:
+                      CircularProgressIndicator()); // Show loader while fetching data
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error loading exercises"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text("No exercises found"));
+            }
+
+            return ReorderableListView.builder(
+                itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   ExerciseModel exercise = snapshot.data![index];
-
                   return ExerciseTile(
+                    key: ValueKey(exercise.id),
                     title: exercise.title,
                     img: "assets/images/muscles/${exercise.image}",
                     info: exercise.muscleGroups,
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ProgressPage(
-                                    currentImage: exercise.image,
-                                    exerciseId: exercise.id,
-                                    routineId: widget.routineId,
-                                    monthlyProgress:
-                                        exercise.monthlyProgressGoals,
-                                    minRep: exercise
-                                        .minRep, // Add appropriate value
-                                    maxRep: exercise
-                                        .maxRep, // Add appropriate value
-                                    type: exercise.type,
-                                    risk: exercise.risk,
-                                    numberOfSets: exercise.sets, //
-                                  )));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProgressPage(
+                            currentImage: exercise.image,
+                            exerciseId: exercise.id,
+                            routineId: widget.routineId,
+                            monthlyProgress: exercise.monthlyProgressGoals,
+                            minRep: exercise.minRep,
+                            maxRep: exercise.maxRep,
+                            type: exercise.type,
+                            risk: exercise.risk,
+                            numberOfSets: exercise.sets,
+                          ),
+                        ),
+                      );
                     },
+                  );
+                },
+                onReorder: (int oldIndex, int newIndex) async {
+                  if (oldIndex < newIndex) {
+                    newIndex -=
+                        1; // Adjust index since the list shrinks temporarily
+                  }
+
+                  final movedExercise = snapshot.data![oldIndex];
+
+                  setState(() {
+                    final updatedList = List.from(snapshot.data!);
+                    updatedList.insert(
+                        newIndex, updatedList.removeAt(oldIndex));
+                    snapshot.data!.clear();
+                    snapshot.data!.addAll(updatedList.cast<ExerciseModel>());
+                  });
+
+                  await databaseService.reorderExercise(
+                    movedExercise.id,
+                    oldIndex,
+                    newIndex,
                   );
                 });
           });
@@ -85,15 +112,18 @@ class _ExercisePageState extends State<ExercisePage> {
             IconButton(
                 onPressed: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EditRoutine(
-                                selectedImage: widget.currentImage,
-                                routineId: widget.routineId,
-                              ))).then((_) {
-                    setState(() {});
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditRoutine(
+                        selectedImage: widget.currentImage,
+                        routineId: widget.routineId,
+                      ),
+                    ),
+                  ).then((_) {
+                    if (mounted) {
+                      setState(() {}); // Only refresh if needed
+                    }
                   });
-                  ;
                 },
                 icon: Icon(Icons.edit)),
             IconButton(
