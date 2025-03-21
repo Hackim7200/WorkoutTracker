@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:workout_tracker/database/models/exercise_model.dart';
@@ -290,12 +291,14 @@ class DatabaseService {
     FROM Note
     JOIN Exercise ON Note.$_noteExerciseIdColumnName = Exercise.$_exerciseIdColumnName
     JOIN Routine ON Routine.$_routineIdColumnName = Exercise.$_exerciseRoutineIdColumnName
-    WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?;
+    WHERE Routine.$_routineIdColumnName = ? AND Exercise.$_exerciseIdColumnName = ?
+    ORDER BY Note.$_noteOrderColumnName ASC;
   ''';
 
     try {
       // Query the database with the provided routineId and exerciseId
       final data = await db.rawQuery(query, [routineId, exerciseId]);
+      print(data);
 
       // Map the query results to a list of WorkoutNote objects
       List<NoteModel> notes = data
@@ -304,6 +307,7 @@ class DatabaseService {
                     as int, // Ensure column name matches the database schema
                 content: e[_noteContentColumnName] as String,
                 type: e[_noteTypeColumnName] as String,
+                // order:e[_noteOrderColumnName] as int
               ))
           .toList();
       print(data.toString());
@@ -670,14 +674,23 @@ class DatabaseService {
     try {
       final db = await database;
 
-      // Get the next available order number for the given exercise
-      final List<Map<String, dynamic>> result = await db.rawQuery('''
-      SELECT COALESCE(MAX($_noteOrderColumnName), 0) + 1 AS nextOrder
-      FROM $_noteTableName
-      WHERE $_noteExerciseIdColumnName = ?
-    ''', [exerciseId]);
+      //   // Get the next available order number for the given exercise
+      //   final List<Map<String, dynamic>> result = await db.rawQuery('''
+      //   SELECT COALESCE(MAX($_noteOrderColumnName), 0) + 1 AS nextOrder
+      //   FROM $_noteTableName
+      //   WHERE $_noteExerciseIdColumnName = ?
+      // ''', [exerciseId]);
 
-      int nextOrder = result.first['nextOrder'] ?? 1;
+      //   int nextOrder = result.first['nextOrder'] ?? 1;
+
+      int order = -1;
+      if (type == "CAUTION") {
+        order = 1;
+      } else if (type == "TIPS") {
+        order = 2;
+      } else {
+        order = 3;
+      }
 
       await db.insert(
         _noteTableName,
@@ -685,11 +698,11 @@ class DatabaseService {
           _noteExerciseIdColumnName: exerciseId,
           _noteTypeColumnName: type,
           _noteContentColumnName: content,
-          _noteOrderColumnName: nextOrder, // Auto-increment order
+          _noteOrderColumnName: order, // Auto-increment order
         },
       );
 
-      print('Note added successfully with order: $nextOrder');
+      print('Note added successfully with order: $order');
     } catch (e) {
       throw Exception("Error adding note: $e");
     }

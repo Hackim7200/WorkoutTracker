@@ -31,10 +31,10 @@ class Notes extends StatelessWidget {
           return Column(
             children: snapshot.data!
                 .map((note) => GestureDetector(
-                      onLongPress: () async {
-                        await databaseService.deleteNote(note.id);
-                        print("Long press click");
-                      },
+                      // onLongPress: () async {
+                      //   await databaseService.deleteNote(note.id);
+                      //   print("Long press click");
+                      // },
                       child: Note(
                         noteId: note.id,
                         type: note.type,
